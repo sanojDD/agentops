@@ -15,6 +15,12 @@ No auth, no external dependencies.
 Invoke-RestMethod "$base/health"
 ```
 
+## GET /health/ready
+Also checks the database: `{"status":"ok","database":"connected"}` (or `disabled` / `unreachable` with HTTP 503). Not used by Render's health check.
+```powershell
+Invoke-RestMethod "$base/health/ready"
+```
+
 ## POST /api/v1/llm/check
 One real model call; confirms OpenRouter and tracing work.
 ```powershell
@@ -67,3 +73,19 @@ Response fields:
 | `model` | Model that produced the answer |
 
 Errors: `422` empty question, `429` provider rate limit, `502/503/504` provider or configuration problems. Messages are generic by design.
+
+## GET /api/v1/runs
+History of chat runs, newest first. Needs `DATABASE_URL` (otherwise 503).
+```powershell
+Invoke-RestMethod "$base/api/v1/runs?limit=10" -Headers $h
+```
+Each run has: `run_id`, `created_at`, `status` (`ok` or `error`), `question`, `answer`, `fallback`, `fallback_reason`, `error_kind`, `model`, `support_score`, `retrieval_attempts`, `generate_attempts`, `latency_ms`, `steps`, `sources`.
+
+## GET /api/v1/runs/{run_id}
+One run. Use the `run_id` from a chat response (it is also the LangSmith run ID). `404` if unknown.
+```powershell
+Invoke-RestMethod "$base/api/v1/runs/PASTE-RUN-ID" -Headers $h
+```
+
+## Storage errors
+Document and run endpoints return `503` with a generic message when the database is unreachable. `/chat` returns `503` if documents cannot be loaded; a failure to *save* a run is logged and never affects the answer.

@@ -1,6 +1,8 @@
+import asyncio
 import logging
 import time
 import uuid
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 
@@ -13,14 +15,26 @@ load_dotenv(ENV_PATH)
 
 from fastapi import FastAPI, Request  # noqa: E402
 
-from app.api.v1 import chat, documents, health, llm  # noqa: E402
+from app.api.v1 import chat, documents, health, llm, runs  # noqa: E402
 from app.core.logging import configure_logging, request_id_var  # noqa: E402
+from app.db.session import db_enabled  # noqa: E402
+from app.retrieval.store import warm_up_store  # noqa: E402
 
 settings = get_settings()
 configure_logging(settings.log_level)
 logger = logging.getLogger("agentops")
 
-app = FastAPI(title=settings.app_name, version=settings.app_version)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load documents from the database in the background so the server starts
+    # listening immediately (Neon may need a few seconds to wake up).
+    if db_enabled():
+        app.state.warmup = asyncio.create_task(asyncio.to_thread(warm_up_store))
+    yield
+
+
+app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)
 
 
 @app.middleware("http")
@@ -49,3 +63,4 @@ app.include_router(health.router)
 app.include_router(llm.router, prefix="/api/v1")
 app.include_router(documents.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
+app.include_router(runs.router, prefix="/api/v1")

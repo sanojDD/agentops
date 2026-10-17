@@ -1,8 +1,12 @@
+import asyncio
 import logging
+import time
 import uuid
 
 from app.core.config import get_settings
+from app.db.session import db_enabled
 from app.graph.builder import get_graph
+from app.services import run_service
 
 logger = logging.getLogger("agentops.chat")
 
@@ -18,9 +22,23 @@ class ChatError(Exception):
         self.public_message = public_message
 
 
+async def _persist(record: dict) -> None:
+    """Save the run to the database. Never lets a storage problem fail the chat."""
+    if not db_enabled():
+        return
+    try:
+        await asyncio.to_thread(run_service.save_run, record)
+    except Exception as exc:
+        logger.warning(
+            "run_save_failed",
+            extra={"fields": {"run_id": record["run_id"], "exc_type": type(exc).__name__}},
+        )
+
+
 async def run_chat(question: str) -> dict:
     settings = get_settings()
     run_id = uuid.uuid4()
+    started = time.perf_counter()
 
     # Passing run_id makes the LangSmith root run id equal to ours, so the
     # run_id in an API response can be searched in LangSmith directly.
@@ -42,6 +60,7 @@ async def run_chat(question: str) -> dict:
             "metadata": {"environment": settings.environment},
         },
     )
+    latency_ms = int((time.perf_counter() - started) * 1000)
 
     # Log metadata only: never question, answer, or document text.
     logger.info(
@@ -56,13 +75,38 @@ async def run_chat(question: str) -> dict:
                 "verify_reason": final.get("verify_reason"),
                 "support_score": final.get("support_score"),
                 "error_kind": final.get("error_kind"),
+                "latency_ms": latency_ms,
                 "steps": final.get("steps", []),
             }
         },
     )
 
+    base_record = {
+        "run_id": str(run_id),
+        "question": question,
+        "retrieval_attempts": final.get("retrieval_attempts", 0),
+        "generate_attempts": final.get("generate_attempts", 0),
+        "latency_ms": latency_ms,
+        "steps": final.get("steps", []),
+        "model": final.get("model", settings.openrouter_model),
+        "support_score": final.get("support_score"),
+    }
+
     if final.get("error_kind"):
-        raise ChatError(final["error_kind"], final.get("error_message") or "Request failed.")
+        kind = final["error_kind"]
+        if kind != "invalid_request":  # empty questions are noise, not history
+            await _persist(
+                {
+                    **base_record,
+                    "status": "error",
+                    "answer": "",
+                    "fallback": False,
+                    "fallback_reason": None,
+                    "error_kind": kind,
+                    "sources": [],
+                }
+            )
+        raise ChatError(kind, final.get("error_message") or "Request failed.")
 
     by_ref = {c["ref"]: c for c in final.get("chunks", [])}
     sources = [
@@ -77,6 +121,18 @@ async def run_chat(question: str) -> dict:
         for ref in final.get("source_refs", [])
         if ref in by_ref
     ]
+
+    await _persist(
+        {
+            **base_record,
+            "status": "ok",
+            "answer": final["answer"],
+            "fallback": final.get("fallback", False),
+            "fallback_reason": final.get("fallback_reason"),
+            "error_kind": None,
+            "sources": sources,
+        }
+    )
 
     return {
         "answer": final["answer"],

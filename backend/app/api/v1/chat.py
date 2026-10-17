@@ -6,7 +6,7 @@ from app.services.chat_service import ChatError, run_chat
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-STATUS = {**STATUS_BY_KIND, "invalid_request": 422}
+STATUS = {**STATUS_BY_KIND, "invalid_request": 422, "storage_unavailable": 503}
 
 
 # Protected by the admin token for now (free-model quota). Real auth and

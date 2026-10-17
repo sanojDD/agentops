@@ -34,7 +34,7 @@ def get_graph():
     g.add_conditional_edges(
         "retrieve",
         route_after_retrieve,
-        {"generate": "generate", "rewrite": "rewrite", "fallback": "fallback"},
+        {"generate": "generate", "rewrite": "rewrite", "fallback": "fallback", END: END},
     )
     g.add_edge("rewrite", "retrieve")
     g.add_conditional_edges(

@@ -7,13 +7,14 @@
 | Schemas | `schemas/` | Pydantic request/response models |
 | Services | `services/` | Business logic: ingest documents, run the chat graph, log metadata |
 | Graph | `graph/` | LangGraph state, nodes, edges, builder |
-| Retrieval | `retrieval/` | Parsing, chunking, BM25 index, in-memory document store |
+| Retrieval | `retrieval/` | Parsing, chunking, BM25 index, document store (database-backed) |
+| Database | `db/` | SQLAlchemy models, sessions, all SQL (`repo.py`); migrations in `alembic/` |
 | Providers | `providers/` | Talk to an LLM vendor; classify errors |
 | Core | `core/` | Settings, logging, request ID context |
 
 ## Rules
 - `/health` never depends on external services.
-- Errors returned to clients are generic. Logs hold metadata only: no questions, answers, document text, or stack traces.
+- Errors returned to clients are generic. Logs hold metadata only: no questions, answers, document text, or stack traces. (The `runs` table does store question and answer text; see DATABASE.md.)
 - Secrets only come from environment variables.
 - Protected endpoints need `X-Admin-Token` until real auth and rate limiting exist.
 - Routes stay thin; the graph and services hold the logic.
@@ -27,9 +28,11 @@ flowchart LR
     API --> Chat[chat route]
     Docs --> DS[document_service]
     DS --> Parse[parsing + chunking]
-    Parse --> Store[(DocumentStore<br/>BM25, in memory)]
+    Parse --> Store[DocumentStore<br/>BM25 index in memory]
+    Store <--> PG[(PostgreSQL on Neon)]
     Chat --> CS[chat_service]
     CS --> Graph[LangGraph workflow]
+    CS -->|save run| PG
     Graph --> Store
     Graph --> Prov[OpenRouter provider]
     Prov --> OR[OpenRouter free model]
@@ -46,6 +49,7 @@ sequenceDiagram
     participant S as chat_service
     participant G as LangGraph
     participant ST as DocumentStore
+    participant DB as PostgreSQL
     participant OR as OpenRouter
     participant LS as LangSmith
 
@@ -58,6 +62,7 @@ sequenceDiagram
     G->>G: verify (deterministic)
     G-->>LS: trace: agentops_chat > nodes
     G-->>S: final state
+    S->>DB: save run (failure is logged, never fatal)
     S-->>API: answer, sources, run_id, steps
     API-->>C: 200 JSON (or mapped error status)
 ```
@@ -68,8 +73,10 @@ The workflow graph itself is drawn in [RAG_FLOW.md](RAG_FLOW.md).
 - `X-Request-ID` header: one per HTTP request; appears in every log line.
 - `run_id` in the chat response: also the LangSmith root run ID, so one ID links the API response, logs, and trace.
 
+## Persistence in one paragraph
+PostgreSQL (Neon) is the source of truth for documents, chunks and run history. Searching uses an in-memory BM25 index that is rebuilt from the database at startup, and writes go to the database before the index. Without `DATABASE_URL` the app runs memory-only. Details, schema and failure behaviour: [DATABASE.md](DATABASE.md).
+
 ## What is intentionally not built yet
-- Persistence (PostgreSQL): Phase 4. Until then documents live in memory.
 - Embeddings and hybrid search: later, to measure baseline vs improved retrieval.
 - Real auth, per-user documents, rate limiting: before any public frontend.
 - Evaluation: after studying evaluation concepts; the `run_id`, `steps`, `support_score` and fallback reasons already give the hooks.

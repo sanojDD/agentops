@@ -6,6 +6,7 @@ from app.graph.edges import RETRYABLE_KINDS
 from app.graph.state import AgentState
 from app.providers.openrouter import ProviderError, complete
 from app.retrieval.bm25 import tokenize
+from app.retrieval.errors import StorageError
 from app.retrieval.store import get_store
 
 RETRY_DELAY_SECONDS = 1.0
@@ -60,21 +61,32 @@ def retrieve_node(state: AgentState) -> dict:
     store = get_store()
     attempt = state.get("retrieval_attempts", 0) + 1
 
-    if store.is_empty():
+    try:
+        if store.is_empty():
+            return {
+                "retrieval_attempts": attempt,
+                "chunks": [],
+                "no_documents": True,
+                "error_kind": None,
+                "error_message": None,
+                "steps": ["retrieve"],
+            }
+
+        # The retry searches wider: more chunks and a lower relevance bar.
+        broaden = attempt > 1
+        top_k = settings.rag_top_k * (2 if broaden else 1)
+        min_coverage = settings.rag_min_coverage * (0.6 if broaden else 1.0)
+        query = state.get("search_query") or state["question"]
+        hits = store.search(query, top_k=top_k, min_coverage=min_coverage)
+    except StorageError as exc:
         return {
             "retrieval_attempts": attempt,
             "chunks": [],
-            "no_documents": True,
+            "error_kind": exc.kind,
+            "error_message": exc.public_message,
             "steps": ["retrieve"],
         }
 
-    # The retry searches wider: more chunks and a lower relevance bar.
-    broaden = attempt > 1
-    top_k = settings.rag_top_k * (2 if broaden else 1)
-    min_coverage = settings.rag_min_coverage * (0.6 if broaden else 1.0)
-    query = state.get("search_query") or state["question"]
-
-    hits = store.search(query, top_k=top_k, min_coverage=min_coverage)
     chunks = [
         {
             "ref": i,
@@ -92,6 +104,8 @@ def retrieve_node(state: AgentState) -> dict:
         "retrieval_attempts": attempt,
         "chunks": chunks,
         "no_documents": False,
+        "error_kind": None,
+        "error_message": None,
         "steps": ["retrieve"],
     }
 

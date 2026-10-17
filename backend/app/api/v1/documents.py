@@ -27,11 +27,18 @@ async def upload_document(
 @router.get("", response_model=DocumentList)
 def list_documents() -> DocumentList:
     store = get_store()
-    return DocumentList(documents=store.list_documents(), total_chunks=store.total_chunks())
+    try:
+        return DocumentList(documents=store.list_documents(), total_chunks=store.total_chunks())
+    except DocumentError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.public_message) from exc
 
 
 @router.delete("/{doc_id}", status_code=204)
 def delete_document(doc_id: str) -> Response:
-    if not get_store().delete(doc_id):
+    try:
+        found = get_store().delete(doc_id)
+    except DocumentError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.public_message) from exc
+    if not found:
         raise HTTPException(status_code=404, detail="Document not found.")
     return Response(status_code=204)

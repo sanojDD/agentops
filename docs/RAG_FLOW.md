@@ -27,7 +27,7 @@ flowchart LR
 | 3. Chunk | `retrieval/chunking.py` | Text is cut into ~900-character pieces with 150 characters of overlap, preferring to break at sentence ends. Overlap stops an answer being split across two chunks. |
 | 4. Index | `retrieval/store.py`, `retrieval/bm25.py` | Each chunk is tokenized (lowercase, stopwords removed, plural stripping) and added to a BM25 index. |
 
-Nothing is written to disk. The file bytes are discarded after parsing; only text chunks live in memory.
+The uploaded file is never written to disk; its bytes are discarded after parsing. The extracted text chunks are saved in PostgreSQL (when `DATABASE_URL` is set) and the BM25 index is rebuilt from them at startup. See [DATABASE.md](DATABASE.md).
 
 ## Part 2: Answering (`POST /api/v1/chat`)
 
@@ -124,7 +124,7 @@ retrieve finds nothing → rewrite → retrieve again finds nothing → `fallbac
 ## Known limitations (be honest about these in interviews)
 - **Keyword retrieval only (BM25).** It misses synonyms ("car" vs "automobile"). This is the *baseline*; embeddings + hybrid search come later so we can measure baseline vs improved retrieval.
 - **Verification is lexical.** It catches off-topic and fabricated answers, but a fluent answer that reuses document words with the wrong meaning can pass. A stronger check (LLM judge, entailment model) belongs in the evaluation phase.
-- **Memory only.** Uploaded documents disappear when the server restarts (Render free tier sleeps after 15 minutes idle). Phase 4 adds PostgreSQL.
+- **The search index lives in memory.** Documents persist in PostgreSQL, but the BM25 index is rebuilt from the database on every start. That is fast at the current limits (3000 chunks) but would need a database-side index (e.g. pgvector) at larger scale.
 - **One shared corpus.** No per-user separation yet; access is protected by one admin token.
-- **Privacy:** LangSmith traces contain prompts, which include document passages. Set `LANGSMITH_HIDE_INPUTS=true` and `LANGSMITH_HIDE_OUTPUTS=true`, or disable tracing, before using sensitive documents.
+- **Privacy:** the `runs` table stores questions, answers and source snippets (see DATABASE.md for retention). LangSmith traces contain prompts, which include document passages. Set `LANGSMITH_HIDE_INPUTS=true` and `LANGSMITH_HIDE_OUTPUTS=true`, or disable tracing, before using sensitive documents.
 - **No OCR**, so scanned PDFs are rejected.

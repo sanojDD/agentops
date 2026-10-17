@@ -12,11 +12,14 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ENV_PATH, extra="ignore")
 
     app_name: str = "AgentOps"
-    app_version: str = "0.3.0"
+    app_version: str = "0.4.0"
     environment: str = "local"
     log_level: str = "INFO"
 
     admin_token: SecretStr | None = None
+
+    # sqlite:///./file.db for local dev, postgresql://... for Neon. Empty = memory only.
+    database_url: SecretStr | None = None
 
     openrouter_api_key: SecretStr | None = None
     openrouter_base_url: str = "https://openrouter.ai/api/v1"

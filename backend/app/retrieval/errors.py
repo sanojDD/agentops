@@ -6,3 +6,10 @@ class DocumentError(Exception):
         self.kind = kind
         self.public_message = public_message
         self.status_code = status_code
+
+
+class StorageError(DocumentError):
+    """The database is unavailable. Safe to show to clients (HTTP 503)."""
+
+    def __init__(self, message: str = "Storage is unavailable. Try again shortly."):
+        super().__init__("storage_unavailable", message, 503)

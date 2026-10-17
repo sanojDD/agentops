@@ -12,6 +12,8 @@ def route_after_validate(state: AgentState) -> str:
 
 
 def route_after_retrieve(state: AgentState) -> str:
+    if state.get("error_kind"):
+        return END  # storage unavailable
     if state.get("chunks"):
         return "generate"
     if state.get("no_documents"):
