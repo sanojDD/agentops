@@ -13,7 +13,7 @@ load_dotenv(ENV_PATH)
 
 from fastapi import FastAPI, Request  # noqa: E402
 
-from app.api.v1 import health, llm  # noqa: E402
+from app.api.v1 import chat, health, llm  # noqa: E402
 from app.core.logging import configure_logging, request_id_var  # noqa: E402
 
 settings = get_settings()
@@ -47,3 +47,4 @@ async def request_context(request: Request, call_next):
 
 app.include_router(health.router)
 app.include_router(llm.router, prefix="/api/v1")
+app.include_router(chat.router, prefix="/api/v1")
