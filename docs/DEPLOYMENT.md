@@ -1,37 +1,50 @@
 # Deployment
 
-Backend on **Render** (free web service), database on **Neon** (free Postgres), traces in **LangSmith**.
+Three free services: **Render web service** (API), **Render static site** (frontend), **Neon** (Postgres). Traces go to **LangSmith**.
 
 ## Free-tier facts (verify before relying; limits change, nothing is guaranteed forever)
-- **Render web service:** spins down after 15 min idle (wake-up takes about a minute); 750 free instance hours per workspace per month, shared across free services; small RAM (about 512 MB), which is why retrieval is lightweight BM25 and uploads are capped; ephemeral disk.
+- **Render web service:** spins down after 15 min idle (wake-up about a minute); 750 free instance hours per workspace per month, shared across free services; about 512 MB RAM, which is why retrieval is lightweight BM25 and uploads are capped; ephemeral disk.
+- **Render static site:** free, served from a CDN, no cold starts; build-time environment variables only; traffic counts against the workspace's monthly free bandwidth.
 - **Neon:** free plan with no expiry, about 100 compute-hours per month, 0.5 to 1 GB storage, compute sleeps after 5 idle minutes. See [DATABASE.md](DATABASE.md).
 - **Render's own free Postgres expires after about 30 days. Do not use it.**
 
 ## Local
-1. Create venv, `pip install -r backend/requirements-dev.txt`.
-2. Copy `.env.example` to `.env`, fill in your keys. For persistence set `DATABASE_URL` (SQLite file or Neon, see DATABASE.md), then from `backend/` run `alembic upgrade head`.
-3. From `backend/`: `python -m pytest -q`, then `uvicorn app.main:app --reload`.
-4. Upload `samples/acme_policy.txt` and ask questions (see [API.md](API.md)).
+1. Backend: create venv, `pip install -r backend/requirements-dev.txt`, copy `.env.example` to `.env` and fill in your keys. For persistence set `DATABASE_URL` and run `alembic upgrade head` from `backend/`. Keep `CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173`.
+2. `python -m pytest -q` then `uvicorn app.main:app --reload` (from `backend/`).
+3. Frontend: `cd frontend`, `npm install`, `npm run dev`, open http://localhost:5173. Details in [FRONTEND.md](FRONTEND.md).
 
-## Render (Blueprint)
+## Render, API (Blueprint or existing service)
 1. Push to GitHub (confirm `.env` is not committed).
-2. Render: New, Blueprint, select repo (or, for an existing service, just push: it redeploys).
-3. Secrets in the Render dashboard: `OPENROUTER_API_KEY`, `LANGSMITH_API_KEY`, `ADMIN_TOKEN` (a new production token), `DATABASE_URL` (Neon pooled string).
-   If you created the service before Phase 4, add `DATABASE_URL` manually under Environment. The updated `render.yaml` start command (`alembic upgrade head && uvicorn ...`) is picked up by Blueprint syncs; if your service does not use the Blueprint, set the **Start Command** by hand to the same value.
+2. Secrets in the API service's Environment: `OPENROUTER_API_KEY`, `LANGSMITH_API_KEY`, `ADMIN_TOKEN` (a new production token), `DATABASE_URL` (Neon pooled string), `CORS_ORIGINS` (the frontend's address, set in step 4 below).
+3. Start command: `alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT` (the Blueprint sets it; set it by hand if your service does not use the Blueprint).
 4. Every `git push` to `main` redeploys. Migrations run on every start.
 
-## Optional environment variables
+## Render, frontend (static site)
+Order matters, because each side needs the other's address:
+1. Create the static site (Blueprint sync, or New, Static Site with Root Directory `frontend`, Build Command `npm ci && npm run build`, Publish Directory `dist`, `NODE_VERSION` = `20.18.0`, `VITE_API_URL` = the API's address, and a rewrite `/*` to `/index.html`).
+2. Note its address, for example `https://agentops-web.onrender.com`.
+3. Set `CORS_ORIGINS` on the API to that address and let the API redeploy.
+4. Open the site and connect with the API address and `ADMIN_TOKEN`.
+
+Full walkthrough and troubleshooting: [FRONTEND.md](FRONTEND.md).
+
+## Optional environment variables (API)
 `RAG_TOP_K`, `RAG_MIN_COVERAGE`, `RAG_MIN_SUPPORT`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MAX_UPLOAD_BYTES`, `MAX_DOCUMENTS`, `MAX_TOTAL_CHUNKS`. Defaults are in `backend/app/core/config.py`.
 For sensitive documents also set `LANGSMITH_HIDE_INPUTS=true` and `LANGSMITH_HIDE_OUTPUTS=true`.
 
 ## Live smoke test (after every deploy)
+API:
 - [ ] `GET /health` returns ok
 - [ ] `GET /health/ready` returns `database: connected` (first call after idle may take a few seconds)
-- [ ] `/docs` loads
 - [ ] `POST /api/v1/llm/check`: 401 without token, `ok: true` with token
-- [ ] Upload `samples/acme_policy.txt`, then `POST /api/v1/chat` with the enterprise refund question: answer mentions 60 days, `sources` not empty
-- [ ] Ask an unrelated question: `fallback: true`, `fallback_reason: no_evidence`
-- [ ] `GET /api/v1/runs` lists those chats; `run_id` matches the LangSmith run under `agentops-prod`
-- [ ] **Persistence test:** in Render, use Manual Deploy, Restart (or wait 15+ idle minutes), then `GET /api/v1/documents`: the document is still there
+- [ ] CORS: `curl.exe -i -X OPTIONS <api>/api/v1/chat -H "Origin: <frontend address>" -H "Access-Control-Request-Method: POST"` shows `access-control-allow-origin`
+- [ ] Upload `samples/acme_policy.txt`, then ask the enterprise refund question: answer mentions 60 days, sources not empty
+- [ ] An unrelated question gives `fallback: true`, `fallback_reason: no_evidence`
+- [ ] `GET /api/v1/runs` lists those chats; `run_id` matches LangSmith (`agentops-prod`)
+- [ ] Persistence: Manual Deploy, Restart, then `GET /api/v1/documents` still lists the document
 - [ ] Render logs are JSON and contain no secrets, questions, or document text
-- [ ] Cold start time after idle: ____ s
+
+Frontend (see the checklist in [FRONTEND.md](FRONTEND.md)):
+- [ ] Site loads with no CORS errors; Connect works; header shows "Database connected"
+- [ ] Upload, ask, citation click, History, Disconnect all work
+- [ ] Cold start time of the API after idle: ____ s

@@ -3,6 +3,7 @@
 ## Layers
 | Layer | Folder | Responsibility |
 |---|---|---|
+| Frontend | `frontend/` | React UI: connect, documents, ask, history. Static files; calls the API from the browser |
 | Routes | `api/v1/` | HTTP only: parse, auth, map errors to status codes |
 | Schemas | `schemas/` | Pydantic request/response models |
 | Services | `services/` | Business logic: ingest documents, run the chat graph, log metadata |
@@ -17,13 +18,14 @@
 - Errors returned to clients are generic. Logs hold metadata only: no questions, answers, document text, or stack traces. (The `runs` table does store question and answer text; see DATABASE.md.)
 - Secrets only come from environment variables.
 - Protected endpoints need `X-Admin-Token` until real auth and rate limiting exist.
+- Browsers may call the API only from origins listed in `CORS_ORIGINS` (exact addresses, `*` rejected, no cookies).
 - Routes stay thin; the graph and services hold the logic.
 
 ## System overview
 
 ```mermaid
 flowchart LR
-    Client -->|HTTPS| API[FastAPI on Render]
+    Browser[React app<br/>Render static site] -->|HTTPS, X-Admin-Token| API[FastAPI on Render]
     API --> Docs[documents routes]
     API --> Chat[chat route]
     Docs --> DS[document_service]
@@ -75,6 +77,9 @@ The workflow graph itself is drawn in [RAG_FLOW.md](RAG_FLOW.md).
 
 ## Persistence in one paragraph
 PostgreSQL (Neon) is the source of truth for documents, chunks and run history. Searching uses an in-memory BM25 index that is rebuilt from the database at startup, and writes go to the database before the index. Without `DATABASE_URL` the app runs memory-only. Details, schema and failure behaviour: [DATABASE.md](DATABASE.md).
+
+## Frontend
+A React single-page app served as static files. It holds no secrets: the user enters the API address and access token at runtime, and the browser calls the API directly. See [FRONTEND.md](FRONTEND.md).
 
 ## What is intentionally not built yet
 - Embeddings and hybrid search: later, to measure baseline vs improved retrieval.

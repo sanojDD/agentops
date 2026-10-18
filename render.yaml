@@ -27,3 +27,37 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false          # Neon connection string (pooled)
+      - key: CORS_ORIGINS
+        sync: false          # the frontend's address, e.g. https://agentops-web.onrender.com
+
+  # Frontend: a static site (free, served from Render's CDN, no cold starts).
+  # Static sites only get build-time variables, so VITE_API_URL is baked in at build.
+  - type: web
+    name: agentops-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: VITE_API_URL
+        sync: false          # your API address, e.g. https://agentops-api.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      # Optional, stricter: enable after you have confirmed the site works.
+      # - path: /*
+      #   name: Content-Security-Policy
+      #   value: "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"

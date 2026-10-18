@@ -23,3 +23,14 @@
 | 19 | Background load at startup, `/health` independent of the database | Render's health check must pass while Neon wakes up | n/a |
 | 20 | Tests force the database off unless they ask for a throwaway SQLite | A stray `DATABASE_URL` in `.env` must never get test data | n/a |
 | 21 | psycopg 3, `prepare_threshold=None`, pre-ping, pool recycle | Compatible with Neon pooled strings and sleeping compute | Driver issues |
+| 22 | React 18 + TypeScript + Vite + plain CSS, no UI, state or router libraries | Small bundle (about 54 KB gzipped), full control of the look, nothing to keep updated | The UI outgrows hand-rolled state |
+| 23 | Frontend is a separate Render static site | Free, CDN, no cold starts; keeps the API a pure API | Custom domain or single-origin hosting |
+| 24 | Access token typed on a Connect screen, never baked into the bundle | A public static site would expose any build-time secret | Real authentication |
+| 25 | Token kept in localStorage ("Remember") or sessionStorage; no third-party scripts on the page | Single-user tool; limits what can read it | Accounts, short-lived tokens |
+| 26 | CORS via explicit `CORS_ORIGINS`, wildcard rejected at startup, no credentials | Only the real frontend may call the API from a browser | Multiple frontends |
+| 27 | Tabs held in state, no URL routing | Simplest on static hosting; deep links are not needed yet | Shareable run links |
+| 28 | Transcript lives in the browser; persistent record is the History tab | The chat endpoint is stateless per question | Conversation memory |
+| 29 | System fonts for the UI, a serif reading face for answers | No font downloads or external requests; answers read like text | Brand identity work |
+| 30 | Model output parsed into paragraphs, lists, bold and citation markers, rendered as text | Never inserts HTML, so documents cannot inject markup | Richer formatting needs |
+| 31 | Security headers on the static site; strict CSP provided but commented out | Safe defaults now, strict policy once verified in a browser | After verifying CSP in production |
+

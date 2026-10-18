@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ENV_PATH, extra="ignore")
 
     app_name: str = "AgentOps"
-    app_version: str = "0.4.0"
+    app_version: str = "0.5.0"
     environment: str = "local"
     log_level: str = "INFO"
 
@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     openrouter_model: str = "google/gemma-4-26b-a4b-it:free"
     llm_timeout_seconds: float = 30.0
+
+    # Browser origins allowed to call the API (comma-separated, exact origins, no *).
+    cors_origins: str = ""
 
     # Upload limits (protect the small free-tier server)
     max_upload_bytes: int = 2_000_000

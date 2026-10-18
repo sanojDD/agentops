@@ -89,3 +89,7 @@ Invoke-RestMethod "$base/api/v1/runs/PASTE-RUN-ID" -Headers $h
 
 ## Storage errors
 Document and run endpoints return `503` with a generic message when the database is unreachable. `/chat` returns `503` if documents cannot be loaded; a failure to *save* a run is logged and never affects the answer.
+
+## Browser access (CORS)
+Browsers may call the API only from origins listed in the `CORS_ORIGINS` environment variable (comma-separated exact origins such as `https://agentops-web.onrender.com`; no trailing slash, `*` is rejected at startup). Allowed methods: GET, POST, DELETE. Allowed request headers: `X-Admin-Token`, `Content-Type`. The `X-Request-ID` response header is readable by the page. Cookies are not used. Requests from tools like PowerShell or curl are not affected by CORS.
+

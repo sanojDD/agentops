@@ -16,6 +16,7 @@ load_dotenv(ENV_PATH)
 from fastapi import FastAPI, Request  # noqa: E402
 
 from app.api.v1 import chat, documents, health, llm, runs  # noqa: E402
+from app.core.cors import add_cors, parse_origins  # noqa: E402
 from app.core.logging import configure_logging, request_id_var  # noqa: E402
 from app.db.session import db_enabled  # noqa: E402
 from app.retrieval.store import warm_up_store  # noqa: E402
@@ -58,6 +59,10 @@ async def request_context(request: Request, call_next):
     request_id_var.reset(token)
     return response
 
+
+# Added after request_context so CORS is the outermost layer: even error
+# responses (401, 503) carry the headers the browser needs to read them.
+add_cors(app, parse_origins(settings.cors_origins))
 
 app.include_router(health.router)
 app.include_router(llm.router, prefix="/api/v1")
