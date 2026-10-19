@@ -15,6 +15,7 @@ class DocumentRow(Base):
     pages: Mapped[int] = mapped_column(Integer)
     chunk_count: Mapped[int] = mapped_column(Integer)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    scope: Mapped[str] = mapped_column(String(16), server_default="private")
 
 
 class ChunkRow(Base):
@@ -37,6 +38,7 @@ class RunRow(Base):
     run_id: Mapped[str] = mapped_column(String(36), primary_key=True)  # = LangSmith run ID
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     status: Mapped[str] = mapped_column(String(10))  # "ok" | "error"
+    actor: Mapped[str] = mapped_column(String(16), server_default="admin")
     question: Mapped[str] = mapped_column(Text)
     answer: Mapped[str] = mapped_column(Text)
     fallback: Mapped[bool] = mapped_column(Boolean)

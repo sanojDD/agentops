@@ -96,4 +96,35 @@ describe("ChatPanel", () => {
     expect(screen.getByRole("button", { name: "Ask" })).toBeDisabled();
     expect(screen.getByText("Upload a document first to get started.")).toBeInTheDocument();
   });
+
+  it("demo mode offers example questions that ask on click, and shows the daily counter", async () => {
+    const client = { chat: vi.fn().mockResolvedValue(answered) };
+    const onSettled = vi.fn();
+    render(
+      <ChatPanel
+        client={client}
+        docCount={1}
+        examples={["How many times can the agent retry?", "Another one?"]}
+        maxChars={300}
+        questionsLeft={12}
+        onSettled={onSettled}
+      />,
+    );
+    expect(screen.getByText("12 questions left today. Up to 300 characters.")).toBeInTheDocument();
+    expect(screen.getByLabelText("Question")).toHaveAttribute("maxlength", "300");
+
+    fireEvent.click(screen.getByRole("button", { name: "How many times can the agent retry?" }));
+    expect(client.chat).toHaveBeenCalledWith("How many times can the agent retry?");
+    await waitFor(() => expect(screen.getByText("Answered")).toBeInTheDocument());
+    expect(onSettled).toHaveBeenCalledOnce();
+  });
+
+  it("demo mode blocks asking when the daily limit is used up", () => {
+    render(
+      <ChatPanel client={{ chat: vi.fn() }} docCount={1} examples={["Q one?"]} questionsLeft={0} />,
+    );
+    expect(screen.getByRole("button", { name: "Q one?" })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Question"), { target: { value: "hello" } });
+    expect(screen.getByRole("button", { name: "Ask" })).toBeDisabled();
+  });
 });

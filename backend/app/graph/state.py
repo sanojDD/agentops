@@ -7,6 +7,7 @@ class AgentState(TypedDict, total=False):
 
     run_id: str
     question: str
+    scope: str  # "all" (admin) or "demo" (visitors see only demo documents)
     search_query: str  # set by the rewrite node on the retrieval retry
     chunks: list[dict]  # retrieved evidence (numbered by "ref")
     no_documents: bool

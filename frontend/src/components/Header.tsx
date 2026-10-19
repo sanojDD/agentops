@@ -1,6 +1,7 @@
-import type { Readiness, View } from "../types";
+import type { Readiness, Role, View } from "../types";
 
 interface Props {
+  role: Role;
   host: string;
   view: View;
   onView: (v: View) => void;
@@ -32,7 +33,8 @@ function statusOf(r: Readiness | null): { tone: "ok" | "off" | "bad" | "wait"; l
   return { tone: "bad", label: "Database unreachable" };
 }
 
-export function Header({ host, view, onView, readiness, onRecheck, onDisconnect }: Props) {
+export function Header({ role, host, view, onView, readiness, onRecheck, onDisconnect }: Props) {
+  const visitor = role === "visitor";
   const status = statusOf(readiness);
   return (
     <header className="topbar">
@@ -50,26 +52,34 @@ export function Header({ host, view, onView, readiness, onRecheck, onDisconnect 
         >
           Ask
         </button>
-        <button
-          type="button"
-          className="tab"
-          aria-current={view === "history" ? "page" : undefined}
-          onClick={() => onView("history")}
-        >
-          History
-        </button>
+        {!visitor && (
+          <button
+            type="button"
+            className="tab"
+            aria-current={view === "history" ? "page" : undefined}
+            onClick={() => onView("history")}
+          >
+            History
+          </button>
+        )}
       </nav>
 
       <div className="topbar-right">
-        <span className="host" title={host}>
-          {host}
-        </span>
-        <button type="button" className="status" onClick={onRecheck} title="Check again">
-          <span className={`dot dot-${status.tone}`} aria-hidden="true" />
-          {status.label}
-        </button>
+        {visitor ? (
+          <span className="demo-badge">Demo, read-only</span>
+        ) : (
+          <>
+            <span className="host" title={host}>
+              {host}
+            </span>
+            <button type="button" className="status" onClick={onRecheck} title="Check again">
+              <span className={`dot dot-${status.tone}`} aria-hidden="true" />
+              {status.label}
+            </button>
+          </>
+        )}
         <button type="button" className="btn btn-quiet" onClick={onDisconnect}>
-          Disconnect
+          {visitor ? "Exit demo" : "Disconnect"}
         </button>
       </div>
     </header>

@@ -130,7 +130,7 @@ def test_run_save_failure_does_not_break_chat(sqlite_db, monkeypatch):
 
 
 def test_storage_unavailable_during_chat_returns_error(monkeypatch):
-    def boom(self):
+    def boom(self, scope=None):
         raise StorageError()
 
     monkeypatch.setattr(type(get_store()), "is_empty", boom)

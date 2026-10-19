@@ -2,9 +2,10 @@ import type { Connection } from "./types";
 
 const KEY = "agentops.connection";
 
-/** "Remember on this device" uses localStorage; otherwise the token only lives for this tab. */
+/** Owner sessions can be remembered (localStorage). Demo sessions never are:
+ *  they live in sessionStorage and are ignored once they have expired. */
 export function loadConnection(): { conn: Connection; remembered: boolean } | null {
-  const stores: [Storage | undefined, boolean][] = [];
+  const stores: [Storage, boolean][] = [];
   try {
     stores.push([window.localStorage, true], [window.sessionStorage, false]);
   } catch {
@@ -12,12 +13,18 @@ export function loadConnection(): { conn: Connection; remembered: boolean } | nu
   }
   for (const [store, remembered] of stores) {
     try {
-      const raw = store?.getItem(KEY);
+      const raw = store.getItem(KEY);
       if (!raw) continue;
       const parsed = JSON.parse(raw);
-      if (typeof parsed?.baseUrl === "string" && typeof parsed?.token === "string") {
-        return { conn: { baseUrl: parsed.baseUrl, token: parsed.token }, remembered };
+      if (typeof parsed?.baseUrl !== "string" || typeof parsed?.token !== "string") continue;
+
+      const role = parsed.role === "visitor" ? "visitor" : "admin";
+      const expiresAt = typeof parsed.expiresAt === "number" ? parsed.expiresAt : undefined;
+      if (role === "visitor" && (expiresAt === undefined || expiresAt < Date.now())) {
+        store.removeItem(KEY);
+        continue;
       }
+      return { conn: { baseUrl: parsed.baseUrl, token: parsed.token, role, expiresAt }, remembered };
     } catch {
       /* ignore corrupt entries */
     }
@@ -27,8 +34,9 @@ export function loadConnection(): { conn: Connection; remembered: boolean } | nu
 
 export function saveConnection(conn: Connection, remember: boolean): void {
   clearConnection();
+  const persist = remember && conn.role !== "visitor";
   try {
-    (remember ? window.localStorage : window.sessionStorage).setItem(KEY, JSON.stringify(conn));
+    (persist ? window.localStorage : window.sessionStorage).setItem(KEY, JSON.stringify(conn));
   } catch {
     /* storage blocked: the app still works for this session */
   }

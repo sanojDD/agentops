@@ -28,6 +28,9 @@ Order matters, because each side needs the other's address:
 
 Full walkthrough and troubleshooting: [FRONTEND.md](FRONTEND.md).
 
+## Demo mode (optional)
+Set `DEMO_ENABLED=true` on the API to let visitors try a read-only copy from the frontend's "Try the demo" button. Limits, privacy, the optional uptime monitor and troubleshooting are in [DEMO_MODE.md](DEMO_MODE.md). Migration `0002` runs automatically with the next deploy.
+
 ## Optional environment variables (API)
 `RAG_TOP_K`, `RAG_MIN_COVERAGE`, `RAG_MIN_SUPPORT`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MAX_UPLOAD_BYTES`, `MAX_DOCUMENTS`, `MAX_TOTAL_CHUNKS`. Defaults are in `backend/app/core/config.py`.
 For sensitive documents also set `LANGSMITH_HIDE_INPUTS=true` and `LANGSMITH_HIDE_OUTPUTS=true`.
@@ -42,9 +45,11 @@ API:
 - [ ] An unrelated question gives `fallback: true`, `fallback_reason: no_evidence`
 - [ ] `GET /api/v1/runs` lists those chats; `run_id` matches LangSmith (`agentops-prod`)
 - [ ] Persistence: Manual Deploy, Restart, then `GET /api/v1/documents` still lists the document
+- [ ] Demo (if enabled): `GET /api/v1/demo/status` shows `enabled: true`; `POST /api/v1/demo/session` returns a token; the token cannot upload (403) and sees only the sample document
 - [ ] Render logs are JSON and contain no secrets, questions, or document text
 
 Frontend (see the checklist in [FRONTEND.md](FRONTEND.md)):
 - [ ] Site loads with no CORS errors; Connect works; header shows "Database connected"
 - [ ] Upload, ask, citation click, History, Disconnect all work
+- [ ] In a private window: "Try the demo" works, an example question gets a cited answer, no upload controls are shown
 - [ ] Cold start time of the API after idle: ____ s

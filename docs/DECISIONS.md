@@ -33,4 +33,13 @@
 | 29 | System fonts for the UI, a serif reading face for answers | No font downloads or external requests; answers read like text | Brand identity work |
 | 30 | Model output parsed into paragraphs, lists, bold and citation markers, rendered as text | Never inserts HTML, so documents cannot inject markup | Richer formatting needs |
 | 31 | Security headers on the static site; strict CSP provided but commented out | Safe defaults now, strict policy once verified in a browser | After verifying CSP in production |
+| 32 | Demo mode with a one-click visitor session instead of real accounts | A recruiter will not sign up; accounts are a large, non-ML feature | Multiple real users |
+| 33 | Visitor tokens are stateless HMAC-signed, key derived from `ADMIN_TOKEN`, 2-hour expiry | No database lookup, no extra secret, rotating ADMIN_TOKEN ends all sessions | Per-token revocation is needed |
+| 34 | Documents carry a scope (`private` / `demo`); the role, not the request, decides what is searched | A visitor can never reach owner documents | Per-user documents |
+| 35 | Demo corpus is a bundled document about AgentOps itself, seeded at startup and on first session | A visitor can ask how it works and get grounded answers; survives restarts and sleeping databases | More sample documents |
+| 36 | In-memory limits: sessions and questions per IP, per visitor, per day, plus concurrency and length caps | Protects the free model quota and the 512 MB server; abuse needs sustained traffic, which keeps counters alive | Database-backed counters |
+| 37 | Client IP = the entry our own proxy appended (`TRUSTED_PROXIES`), never the first `X-Forwarded-For` value | The first value is controlled by the client | Different hosting in front of the app |
+| 38 | Visitor questions are stored (actor = visitor) and the visitor is told so | Lets the owner review real behaviour, which feeds evaluation | Privacy requirements change |
+| 39 | Optional uptime monitor on `/health`, which does not touch the database | Avoids the one-minute cold start for the first visitor without waking Neon | Hosting plan changes |
+| 40 | Frontend shows server-written limit messages verbatim | One source of truth for wording; no mismatch between UI and API | Localisation |
 

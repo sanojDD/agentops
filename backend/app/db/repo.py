@@ -27,6 +27,7 @@ def insert_document(session: Session, info: DocumentInfo, chunks: list[ChunkTupl
             pages=info.pages,
             chunk_count=info.chunks,
             uploaded_at=datetime.fromisoformat(info.uploaded_at),
+            scope=info.scope,
         )
     )
     session.flush()  # document row must exist before chunk rows (foreign key)
@@ -65,6 +66,7 @@ def load_all(session: Session) -> list[tuple[DocumentInfo, list[ChunkTuple]]]:
                 pages=d.pages,
                 chunks=d.chunk_count,
                 uploaded_at=_iso(d.uploaded_at),
+                scope=d.scope,
             ),
             by_doc[d.id],
         )
@@ -82,6 +84,7 @@ def _run_to_dict(row: RunRow) -> dict:
         "run_id": row.run_id,
         "created_at": _iso(row.created_at),
         "status": row.status,
+        "actor": row.actor,
         "question": row.question,
         "answer": row.answer,
         "fallback": row.fallback,

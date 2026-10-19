@@ -11,13 +11,14 @@
 | Retrieval | `retrieval/` | Parsing, chunking, BM25 index, document store (database-backed) |
 | Database | `db/` | SQLAlchemy models, sessions, all SQL (`repo.py`); migrations in `alembic/` |
 | Providers | `providers/` | Talk to an LLM vendor; classify errors |
-| Core | `core/` | Settings, logging, request ID context |
+| Core | `core/` | Settings, logging, request ID context, auth (roles), demo tokens, demo limits, CORS |
+| Demo | `demo/` | Bundled sample document and idempotent seeding |
 
 ## Rules
 - `/health` never depends on external services.
 - Errors returned to clients are generic. Logs hold metadata only: no questions, answers, document text, or stack traces. (The `runs` table does store question and answer text; see DATABASE.md.)
 - Secrets only come from environment variables.
-- Protected endpoints need `X-Admin-Token` until real auth and rate limiting exist.
+- Two roles: the owner (`X-Admin-Token`, full access) and demo visitors (`X-Demo-Token`, a signed short-lived token; read-only, sample document only, rate limited). See [DEMO_MODE.md](DEMO_MODE.md).
 - Browsers may call the API only from origins listed in `CORS_ORIGINS` (exact addresses, `*` rejected, no cookies).
 - Routes stay thin; the graph and services hold the logic.
 

@@ -35,7 +35,7 @@ async def _persist(record: dict) -> None:
         )
 
 
-async def run_chat(question: str) -> dict:
+async def run_chat(question: str, *, scope: str = "all", actor: str = "admin") -> dict:
     settings = get_settings()
     run_id = uuid.uuid4()
     started = time.perf_counter()
@@ -46,6 +46,7 @@ async def run_chat(question: str) -> dict:
         {
             "run_id": str(run_id),
             "question": question,
+            "scope": scope,
             "retrieval_attempts": 0,
             "generate_attempts": 0,
             "chunks": [],
@@ -83,6 +84,7 @@ async def run_chat(question: str) -> dict:
 
     base_record = {
         "run_id": str(run_id),
+        "actor": actor,
         "question": question,
         "retrieval_attempts": final.get("retrieval_attempts", 0),
         "generate_attempts": final.get("generate_attempts", 0),

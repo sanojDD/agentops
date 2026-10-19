@@ -1,9 +1,9 @@
 import os
-import secrets
 import time
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.core.auth import require_admin  # noqa: F401  (re-exported for other routers)
 from app.core.config import Settings, get_settings
 from app.core.logging import request_id_var
 from app.providers.openrouter import ProviderError, complete
@@ -19,18 +19,6 @@ STATUS_BY_KIND = {
     "bad_request": 502,
     "upstream": 502,
 }
-
-
-def require_admin(
-    x_admin_token: str | None = Header(default=None),
-    settings: Settings = Depends(get_settings),
-) -> None:
-    if settings.admin_token is None:
-        raise HTTPException(status_code=503, detail="Admin endpoints are disabled.")
-    expected = settings.admin_token.get_secret_value().encode()
-    given = (x_admin_token or "").encode()
-    if not secrets.compare_digest(given, expected):
-        raise HTTPException(status_code=401, detail="Invalid admin token.")
 
 
 @router.post("/check", response_model=LLMCheckResponse, dependencies=[Depends(require_admin)])

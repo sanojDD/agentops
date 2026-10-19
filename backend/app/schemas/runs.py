@@ -7,6 +7,7 @@ class RunOut(BaseModel):
     run_id: str
     created_at: str
     status: str  # "ok" | "error"
+    actor: str  # "admin" | "visitor"
     question: str
     answer: str
     fallback: bool

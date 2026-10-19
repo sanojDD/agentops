@@ -2,7 +2,7 @@
 
 Observable agentic RAG / LLMOps platform. Upload documents, ask questions, get answers that cite their sources, and inspect every workflow step.
 
-**Status:** Phase 5 (web UI). Frontend on a Render static site, backend on Render, database on Neon: all free tiers.
+**Status:** Phase 6 (demo mode). Anyone can try it from the link with one click, read-only, with usage limits. Frontend on a Render static site, backend on Render, database on Neon: all free tiers.
 
 ## What it does
 1. Upload `.txt`, `.md` or `.pdf` documents; they are chunked, indexed and saved in PostgreSQL.
@@ -44,6 +44,7 @@ Optional persistence: set `DATABASE_URL=sqlite:///./agentops_dev.db` in `.env` a
 ## Docs
 | Doc | What it explains |
 |---|---|
+| [docs/DEMO_MODE.md](docs/DEMO_MODE.md) | Visitor access, limits, abuse protection, privacy, how to turn it on |
 | [docs/FRONTEND.md](docs/FRONTEND.md) | The UI: screens, design notes, security model, local run, deploy, troubleshooting |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, diagrams, how the pieces connect |
 | [docs/RAG_FLOW.md](docs/RAG_FLOW.md) | Step-by-step RAG flow with a worked example and tuning knobs |
@@ -58,4 +59,6 @@ Optional persistence: set `DATABASE_URL=sqlite:///./agentops_dev.db` in `.env` a
 - [x] Phase 3: Document ingestion, BM25 retrieval, grounded answers, citations, verification
 - [x] Phase 4: PostgreSQL persistence (documents, runs, history)
 - [x] Phase 5: React UI, deployed as a free static site
-- [ ] Later: real authentication, embeddings + hybrid retrieval, evaluation, CI/CD
+- [x] Phase 6: Demo mode (visitor access, rate limits, sample document, uptime monitor guide)
+- [ ] Phase 7: Evaluation (test questions, retrieval and answer metrics, baseline vs improved)
+- [ ] Later: real accounts, embeddings + hybrid retrieval, CI/CD

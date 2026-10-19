@@ -91,5 +91,29 @@ Invoke-RestMethod "$base/api/v1/runs/PASTE-RUN-ID" -Headers $h
 Document and run endpoints return `503` with a generic message when the database is unreachable. `/chat` returns `503` if documents cannot be loaded; a failure to *save* a run is logged and never affects the answer.
 
 ## Browser access (CORS)
-Browsers may call the API only from origins listed in the `CORS_ORIGINS` environment variable (comma-separated exact origins such as `https://agentops-web.onrender.com`; no trailing slash, `*` is rejected at startup). Allowed methods: GET, POST, DELETE. Allowed request headers: `X-Admin-Token`, `Content-Type`. The `X-Request-ID` response header is readable by the page. Cookies are not used. Requests from tools like PowerShell or curl are not affected by CORS.
+Browsers may call the API only from origins listed in the `CORS_ORIGINS` environment variable (comma-separated exact origins such as `https://agentops-web.onrender.com`; no trailing slash, `*` is rejected at startup). Allowed methods: GET, POST, DELETE. Allowed request headers: `X-Admin-Token`, `X-Demo-Token`, `Content-Type`. The `X-Request-ID` response header is readable by the page. Cookies are not used. Requests from tools like PowerShell or curl are not affected by CORS.
+
+## Roles and demo endpoints
+Two kinds of caller exist (details in [DEMO_MODE.md](DEMO_MODE.md)):
+
+| Role | How it authenticates | Can |
+|---|---|---|
+| Owner | `X-Admin-Token: <ADMIN_TOKEN>` | everything |
+| Demo visitor | `X-Demo-Token: <token from /demo/session>` | list demo documents, ask questions |
+
+A visitor token on an owner-only route gets `403`; a missing, invalid or expired token gets `401`.
+
+### GET /api/v1/demo/status
+Public. `{"enabled": true, "questions_left_today": 57, "max_question_chars": 300, "session_minutes": 120}`; `enabled` is `false` when demo mode is off.
+
+### POST /api/v1/demo/session
+Public, limited per IP. Returns `{"token": "...", "expires_at": "...", "questions_left_today": 57, "max_question_chars": 300}`.
+`404` demo mode is off, `429` too many sessions or the daily cap is reached (with `Retry-After`), `503` not configured.
+
+```powershell
+Invoke-RestMethod -Method Post "$base/api/v1/demo/session"
+```
+
+### Limits on /api/v1/chat for visitors
+`422` question longer than the cap, `429` hourly limit, daily limit, or server busy (with a readable `detail` and a `Retry-After` header). Visitors only search demo documents; `GET /api/v1/documents` returns only those.
 

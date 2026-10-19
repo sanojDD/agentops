@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApiError, createClient, normalizeBaseUrl } from "./api";
+import {
+  ApiError,
+  createClient,
+  fetchDemoStatus,
+  normalizeBaseUrl,
+  startDemoSession,
+} from "./api";
 
 const conn = { baseUrl: "https://api.example.com/", token: "secret-token" };
 
@@ -67,9 +73,15 @@ describe("client", () => {
     expect(onUnauthorized).toHaveBeenCalledOnce();
   });
 
-  it("explains rate limiting", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({ detail: "x" }, 429)));
-    await expect(createClient(conn).chat("q")).rejects.toThrow(/rate limiting/);
+  it("shows the server's own wording for rate limits, with a fallback", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(json({ detail: "You have reached the demo's hourly question limit." }, 429)),
+    );
+    await expect(createClient(conn).chat("q")).rejects.toThrow("hourly question limit");
+
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 429 })));
+    await expect(createClient(conn).chat("q")).rejects.toThrow(/Too many requests/);
   });
 
   it("uses the server detail for other errors", async () => {
@@ -106,5 +118,53 @@ describe("client", () => {
   it("handles 204 responses", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 204 })));
     await expect(createClient(conn).deleteDocument("abc")).resolves.toBeUndefined();
+  });
+});
+
+describe("demo mode", () => {
+  it("visitors send X-Demo-Token, never X-Admin-Token", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [], total_chunks: 0 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await createClient({ ...conn, token: "v1.abc", role: "visitor" }).listDocuments();
+
+    const headers = fetchMock.mock.calls[0][1].headers as Headers;
+    expect(headers.get("X-Demo-Token")).toBe("v1.abc");
+    expect(headers.has("X-Admin-Token")).toBe(false);
+  });
+
+  it("an expired visitor token says the session expired", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({ detail: "Invalid or expired token." }, 401)));
+    const onUnauthorized = vi.fn();
+    await expect(
+      createClient({ ...conn, role: "visitor" }, { onUnauthorized }).chat("q"),
+    ).rejects.toThrow("Your demo session has expired");
+    expect(onUnauthorized).toHaveBeenCalled();
+  });
+
+  it("reads demo status and starts a session without any token", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(json({ enabled: true, questions_left_today: 40, max_question_chars: 300, session_minutes: 120 }))
+      .mockResolvedValueOnce(json({ token: "v1.x", expires_at: "2026-10-18T12:00:00+00:00", questions_left_today: 40, max_question_chars: 300 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    expect((await fetchDemoStatus("api.example.com")).questions_left_today).toBe(40);
+    expect((await startDemoSession("api.example.com")).token).toBe("v1.x");
+
+    const [statusUrl, statusInit] = fetchMock.mock.calls[0];
+    expect(statusUrl).toBe("https://api.example.com/api/v1/demo/status");
+    expect((statusInit.headers as Headers).has("X-Admin-Token")).toBe(false);
+    const [sessionUrl, sessionInit] = fetchMock.mock.calls[1];
+    expect(sessionUrl).toBe("https://api.example.com/api/v1/demo/session");
+    expect(sessionInit.method).toBe("POST");
+  });
+
+  it("surfaces the daily-limit message when a session is refused", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(json({ detail: "The demo has reached today's question limit." }, 429)),
+    );
+    await expect(startDemoSession("api.example.com")).rejects.toThrow("today's question limit");
   });
 });

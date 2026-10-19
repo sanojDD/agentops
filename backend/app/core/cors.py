@@ -23,7 +23,7 @@ def add_cors(app: FastAPI, origins: list[str]) -> None:
         CORSMiddleware,
         allow_origins=origins,
         allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
-        allow_headers=["X-Admin-Token", "Content-Type"],
+        allow_headers=["X-Admin-Token", "X-Demo-Token", "Content-Type"],
         expose_headers=["X-Request-ID"],
         max_age=600,
     )

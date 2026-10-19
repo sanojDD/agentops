@@ -77,29 +77,38 @@ class DocumentStore:
         self._index.clear()
 
     # ---------- reads ----------
-    def is_empty(self) -> bool:
+    # ``scope=None`` means every document (admin). ``scope="demo"`` restricts a
+    # call to the public demo documents, so visitors can never see private ones.
+    def _in_scope(self, doc_id: str, scope: str | None) -> bool:
+        return scope is None or self._docs[doc_id].scope == scope
+
+    def is_empty(self, scope: str | None = None) -> bool:
         self.ensure_loaded()
         with self._lock:
-            return not self._docs
+            return not any(scope is None or d.scope == scope for d in self._docs.values())
 
-    def total_chunks(self) -> int:
+    def total_chunks(self, scope: str | None = None) -> int:
         self.ensure_loaded()
         with self._lock:
-            return len(self._chunks)
+            return sum(1 for c in self._chunks.values() if self._in_scope(c.doc_id, scope))
 
-    def list_documents(self) -> list[DocumentInfo]:
+    def list_documents(self, scope: str | None = None) -> list[DocumentInfo]:
         self.ensure_loaded()
         with self._lock:
-            return list(self._docs.values())
+            return [d for d in self._docs.values() if scope is None or d.scope == scope]
 
-    def search(self, query: str, *, top_k: int, min_coverage: float) -> list[ScoredChunk]:
+    def search(
+        self, query: str, *, top_k: int, min_coverage: float, scope: str | None = None
+    ) -> list[ScoredChunk]:
+        # Note: BM25 statistics (IDF) are computed over all documents; only the
+        # returned chunks are filtered by scope.
         self.ensure_loaded()
         with self._lock:
             hits = self._index.search(query)
             results = [
                 ScoredChunk(self._chunks[key], score, coverage)
                 for key, score, coverage in hits
-                if coverage >= min_coverage
+                if coverage >= min_coverage and self._in_scope(self._chunks[key].doc_id, scope)
             ]
             return results[:top_k]
 
@@ -113,6 +122,7 @@ class DocumentStore:
         *,
         max_documents: int,
         max_total_chunks: int,
+        scope: str = "private",
     ) -> DocumentInfo:
         self.ensure_loaded()
         with self._lock:
@@ -138,6 +148,7 @@ class DocumentStore:
                 pages=page_count,
                 chunks=len(chunks),
                 uploaded_at=datetime.now(timezone.utc).isoformat(),
+                scope=scope,
             )
 
             if db_enabled():  # database first: if it fails, memory stays untouched

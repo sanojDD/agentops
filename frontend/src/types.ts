@@ -7,6 +7,7 @@ export interface DocumentInfo {
   pages: number;
   chunks: number;
   uploaded_at: string;
+  scope: "private" | "demo";
 }
 
 export interface DocumentList {
@@ -40,6 +41,7 @@ export interface RunOut {
   run_id: string;
   created_at: string;
   status: "ok" | "error";
+  actor: "admin" | "visitor";
   question: string;
   answer: string;
   fallback: boolean;
@@ -64,9 +66,29 @@ export interface Readiness {
   database: "connected" | "disabled" | "unreachable";
 }
 
+export type Role = "admin" | "visitor";
+
 export interface Connection {
   baseUrl: string;
   token: string;
+  /** Missing means "admin" (connections saved before demo mode existed). */
+  role?: Role;
+  /** Visitor sessions expire; unix milliseconds. */
+  expiresAt?: number;
+}
+
+export interface DemoStatus {
+  enabled: boolean;
+  questions_left_today: number;
+  max_question_chars: number;
+  session_minutes: number;
+}
+
+export interface DemoSession {
+  token: string;
+  expires_at: string;
+  questions_left_today: number;
+  max_question_chars: number;
 }
 
 export type View = "ask" | "history";

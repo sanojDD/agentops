@@ -102,6 +102,7 @@ export function HistoryPanel({
                         aria-current={r.run_id === selected ? "true" : undefined}
                         onClick={() => setSelected(r.run_id)}
                       >
+                        {r.actor === "visitor" && <span className="tag">Visitor</span>}
                         {r.question}
                       </button>
                     </td>

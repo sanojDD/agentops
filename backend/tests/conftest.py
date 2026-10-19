@@ -2,6 +2,8 @@ import pytest
 
 from app.db import session as session_mod
 from app.db.base import Base
+from app.core.limits import reset_demo_limits
+from app.demo.seed import reset_seed_state
 from app.graph import nodes
 from app.retrieval.store import get_store
 
@@ -13,9 +15,13 @@ def no_real_db(monkeypatch):
     monkeypatch.setattr(session_mod, "get_database_url", lambda: None)
     session_mod.reset_engine()
     get_store.cache_clear()
+    reset_demo_limits()
+    reset_seed_state()
     yield
     session_mod.reset_engine()
     get_store.cache_clear()
+    reset_demo_limits()
+    reset_seed_state()
 
 
 @pytest.fixture(autouse=True)

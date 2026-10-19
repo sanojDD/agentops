@@ -8,6 +8,7 @@ class DocumentInfo(BaseModel):
     pages: int
     chunks: int
     uploaded_at: str
+    scope: str = "private"  # "private" (admin only) or "demo" (visible to demo visitors)
 
 
 class DocumentList(BaseModel):

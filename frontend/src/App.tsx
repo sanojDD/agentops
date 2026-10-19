@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createClient, errorMessage } from "./api";
+import { createClient, errorMessage, fetchDemoStatus } from "./api";
 import { ChatPanel } from "./components/ChatPanel";
 import { ConnectScreen } from "./components/ConnectScreen";
 import { DocumentsPanel } from "./components/DocumentsPanel";
 import { Header } from "./components/Header";
 import { HistoryPanel } from "./components/HistoryPanel";
+import { EXAMPLE_QUESTIONS } from "./lib/demo";
 import { hostOf } from "./lib/format";
 import { clearConnection, loadConnection, saveConnection } from "./storage";
-import type { Connection, DocumentList, Readiness, View } from "./types";
+import type { Connection, DemoStatus, DocumentList, Readiness, View } from "./types";
 
 export default function App() {
   const [conn, setConn] = useState<Connection | null>(() => loadConnection()?.conn ?? null);
@@ -16,6 +17,9 @@ export default function App() {
   const [docs, setDocs] = useState<DocumentList | null>(null);
   const [docsError, setDocsError] = useState<string | null>(null);
   const [readiness, setReadiness] = useState<Readiness | null>(null);
+  const [demoInfo, setDemoInfo] = useState<DemoStatus | null>(null);
+
+  const visitor = conn?.role === "visitor";
 
   const disconnect = useCallback((message?: string) => {
     clearConnection();
@@ -23,6 +27,7 @@ export default function App() {
     setDocs(null);
     setDocsError(null);
     setReadiness(null);
+    setDemoInfo(null);
     setView("ask");
     setNotice(message ?? null);
   }, []);
@@ -31,7 +36,12 @@ export default function App() {
     () =>
       conn
         ? createClient(conn, {
-            onUnauthorized: () => disconnect("The server rejected your access token. Connect again."),
+            onUnauthorized: () =>
+              disconnect(
+                conn.role === "visitor"
+                  ? "Your demo session has expired. Start a new one."
+                  : "The server rejected your access token. Connect again.",
+              ),
           })
         : null,
     [conn, disconnect],
@@ -57,10 +67,20 @@ export default function App() {
     }
   }, [client]);
 
+  const refreshDemo = useCallback(async () => {
+    if (!conn || conn.role !== "visitor") return;
+    try {
+      setDemoInfo(await fetchDemoStatus(conn.baseUrl));
+    } catch {
+      /* the counter is a convenience; ignore failures */
+    }
+  }, [conn]);
+
   useEffect(() => {
     void reloadDocs();
-    void recheck();
-  }, [reloadDocs, recheck]);
+    if (visitor) void refreshDemo();
+    else void recheck(); // the database check is for the owner; visitors skip it
+  }, [reloadDocs, recheck, refreshDemo, visitor]);
 
   if (!conn || !client) {
     return (
@@ -79,6 +99,7 @@ export default function App() {
   return (
     <div className="app">
       <Header
+        role={visitor ? "visitor" : "admin"}
         host={hostOf(client.baseUrl)}
         view={view}
         onView={setView}
@@ -95,11 +116,19 @@ export default function App() {
               loadError={docsError}
               onChange={setDocs}
               onReload={() => void reloadDocs()}
+              readOnly={visitor}
             />
           </aside>
-          <ChatPanel client={client} docCount={docs ? docs.documents.length : null} />
+          <ChatPanel
+            client={client}
+            docCount={docs ? docs.documents.length : null}
+            examples={visitor ? EXAMPLE_QUESTIONS : undefined}
+            maxChars={visitor ? demoInfo?.max_question_chars || 300 : undefined}
+            questionsLeft={visitor ? (demoInfo ? demoInfo.questions_left_today : null) : undefined}
+            onSettled={visitor ? () => void refreshDemo() : undefined}
+          />
         </div>
-        <HistoryPanel client={client} active={view === "history"} />
+        {!visitor && <HistoryPanel client={client} active={view === "history"} />}
       </main>
     </div>
   );

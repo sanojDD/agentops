@@ -15,6 +15,8 @@ interface Props {
   loadError: string | null;
   onChange: (list: DocumentList) => void;
   onReload: () => void;
+  /** Demo visitors can look but not upload or delete. */
+  readOnly?: boolean;
 }
 
 function checkFile(file: File): string | null {
@@ -26,7 +28,7 @@ function checkFile(file: File): string | null {
   return null;
 }
 
-export function DocumentsPanel({ client, docs, loadError, onChange, onReload }: Props) {
+export function DocumentsPanel({ client, docs, loadError, onChange, onReload, readOnly }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -80,38 +82,47 @@ export function DocumentsPanel({ client, docs, loadError, onChange, onReload }: 
   }
 
   const count = docs?.documents.length ?? 0;
+  const dropHandlers = readOnly
+    ? {}
+    : {
+        onDragOver: (e: DragEvent) => {
+          e.preventDefault();
+          setDragging(true);
+        },
+        onDragLeave: () => setDragging(false),
+        onDrop,
+      };
 
   return (
     <section
       className={dragging ? "docs docs-drag" : "docs"}
-      aria-label="Documents"
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragging(true);
-      }}
-      onDragLeave={() => setDragging(false)}
-      onDrop={onDrop}
+      aria-label={readOnly ? "Sample document" : "Documents"}
+      {...dropHandlers}
     >
       <div className="docs-head">
-        <h2>Documents</h2>
-        <button
-          type="button"
-          className="btn btn-primary btn-small"
-          onClick={() => inputRef.current?.click()}
-          disabled={busy}
-        >
-          <Icon name="upload" size={14} />
-          {busy ? "Working" : "Upload"}
-        </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ALLOWED.join(",")}
-          multiple
-          hidden
-          aria-label="Choose documents to upload"
-          onChange={(e) => e.target.files && void upload(Array.from(e.target.files))}
-        />
+        <h2>{readOnly ? "Sample document" : "Documents"}</h2>
+        {!readOnly && (
+          <>
+            <button
+              type="button"
+              className="btn btn-primary btn-small"
+              onClick={() => inputRef.current?.click()}
+              disabled={busy}
+            >
+              <Icon name="upload" size={14} />
+              {busy ? "Working" : "Upload"}
+            </button>
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ALLOWED.join(",")}
+              multiple
+              hidden
+              aria-label="Choose documents to upload"
+              onChange={(e) => e.target.files && void upload(Array.from(e.target.files))}
+            />
+          </>
+        )}
       </div>
 
       {error && (
@@ -140,8 +151,9 @@ export function DocumentsPanel({ client, docs, loadError, onChange, onReload }: 
 
       {docs && count === 0 && (
         <p className="empty">
-          No documents yet. Upload a .txt, .md or .pdf file (up to {formatBytes(MAX_BYTES)}), or
-          drop one here.
+          {readOnly
+            ? "The sample document is not loaded yet. Try again in a moment."
+            : `No documents yet. Upload a .txt, .md or .pdf file (up to ${formatBytes(MAX_BYTES)}), or drop one here.`}
         </p>
       )}
 
@@ -174,24 +186,35 @@ export function DocumentsPanel({ client, docs, loadError, onChange, onReload }: 
               ) : (
                 <>
                   <div className="doc-body">
-                    <span className="doc-name" title={d.name}>
-                      {d.name}
+                    <span className="doc-title">
+                      <span className="doc-name" title={d.name}>
+                        {d.name}
+                      </span>
+                      {!readOnly && d.scope === "demo" && (
+                        <span className="tag" title="Visible to demo visitors">
+                          Demo
+                        </span>
+                      )}
                     </span>
                     <span className="doc-meta">
                       {d.pages} {d.pages === 1 ? "page" : "pages"}, {d.chunks}{" "}
                       {d.chunks === 1 ? "chunk" : "chunks"}, {formatBytes(d.size_bytes)}
                     </span>
-                    <span className="doc-meta">Added {relativeTime(d.uploaded_at)}</span>
+                    {!readOnly && (
+                      <span className="doc-meta">Added {relativeTime(d.uploaded_at)}</span>
+                    )}
                   </div>
-                  <button
-                    type="button"
-                    className="icon-btn"
-                    onClick={() => setConfirmId(d.doc_id)}
-                    aria-label={`Delete ${d.name}`}
-                    title="Delete"
-                  >
-                    <Icon name="trash" size={15} />
-                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      onClick={() => setConfirmId(d.doc_id)}
+                      aria-label={`Delete ${d.name}`}
+                      title="Delete"
+                    >
+                      <Icon name="trash" size={15} />
+                    </button>
+                  )}
                 </>
               )}
             </li>
@@ -201,7 +224,9 @@ export function DocumentsPanel({ client, docs, loadError, onChange, onReload }: 
 
       {docs && (
         <p className="docs-foot">
-          {count} of {MAX_DOCUMENTS} documents, {docs.total_chunks} chunks indexed
+          {readOnly
+            ? "Demo mode is read-only: uploading and deleting are turned off."
+            : `${count} of ${MAX_DOCUMENTS} documents, ${docs.total_chunks} chunks indexed`}
         </p>
       )}
     </section>

@@ -15,10 +15,10 @@ load_dotenv(ENV_PATH)
 
 from fastapi import FastAPI, Request  # noqa: E402
 
-from app.api.v1 import chat, documents, health, llm, runs  # noqa: E402
+from app.api.v1 import chat, demo, documents, health, llm, runs  # noqa: E402
 from app.core.cors import add_cors, parse_origins  # noqa: E402
 from app.core.logging import configure_logging, request_id_var  # noqa: E402
-from app.db.session import db_enabled  # noqa: E402
+from app.demo.seed import ensure_demo_seeded  # noqa: E402
 from app.retrieval.store import warm_up_store  # noqa: E402
 
 settings = get_settings()
@@ -26,12 +26,16 @@ configure_logging(settings.log_level)
 logger = logging.getLogger("agentops")
 
 
+def _startup() -> None:
+    warm_up_store()  # load documents from the database (no-op without one)
+    ensure_demo_seeded()  # add the sample document when demo mode is on
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load documents from the database in the background so the server starts
-    # listening immediately (Neon may need a few seconds to wake up).
-    if db_enabled():
-        app.state.warmup = asyncio.create_task(asyncio.to_thread(warm_up_store))
+    # Runs in the background so the server starts listening immediately
+    # (Neon may need a few seconds to wake up).
+    app.state.startup = asyncio.create_task(asyncio.to_thread(_startup))
     yield
 
 
@@ -66,6 +70,7 @@ add_cors(app, parse_origins(settings.cors_origins))
 
 app.include_router(health.router)
 app.include_router(llm.router, prefix="/api/v1")
+app.include_router(demo.router, prefix="/api/v1")
 app.include_router(documents.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
 app.include_router(runs.router, prefix="/api/v1")

@@ -60,9 +60,10 @@ def retrieve_node(state: AgentState) -> dict:
     settings = get_settings()
     store = get_store()
     attempt = state.get("retrieval_attempts", 0) + 1
+    scope = None if state.get("scope", "all") == "all" else state["scope"]
 
     try:
-        if store.is_empty():
+        if store.is_empty(scope):
             return {
                 "retrieval_attempts": attempt,
                 "chunks": [],
@@ -77,7 +78,7 @@ def retrieve_node(state: AgentState) -> dict:
         top_k = settings.rag_top_k * (2 if broaden else 1)
         min_coverage = settings.rag_min_coverage * (0.6 if broaden else 1.0)
         query = state.get("search_query") or state["question"]
-        hits = store.search(query, top_k=top_k, min_coverage=min_coverage)
+        hits = store.search(query, top_k=top_k, min_coverage=min_coverage, scope=scope)
     except StorageError as exc:
         return {
             "retrieval_attempts": attempt,
@@ -226,6 +227,14 @@ def verify_node(state: AgentState) -> dict:
 def fallback_node(state: AgentState) -> dict:
     if state.get("no_documents"):
         reason = "no_documents"
+        if state.get("scope") == "demo":  # visitors cannot upload, so say something else
+            return {
+                "answer": "The demo documents are not loaded yet. Try again in a moment.",
+                "fallback": True,
+                "fallback_reason": reason,
+                "source_refs": [],
+                "steps": ["fallback"],
+            }
     elif not state.get("chunks"):
         reason = "no_evidence"
     else:

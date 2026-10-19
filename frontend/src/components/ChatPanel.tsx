@@ -13,6 +13,17 @@ interface Turn {
   error?: string;
 }
 
+interface Props {
+  client: Pick<ApiClient, "chat">;
+  docCount: number | null;
+  /** Demo visitors: clickable starter questions, a length cap and a daily counter. */
+  examples?: string[];
+  maxChars?: number;
+  questionsLeft?: number | null;
+  /** Called after every question finishes (used to refresh the daily counter). */
+  onSettled?: () => void;
+}
+
 function Pending({ startedAt }: { startedAt: number }) {
   const [seconds, setSeconds] = useState(0);
   useEffect(() => {
@@ -23,25 +34,20 @@ function Pending({ startedAt }: { startedAt: number }) {
     <div className="pending" role="status">
       <div className="progress" aria-hidden="true" />
       <p>
-        Searching your documents, writing an answer and checking it against the evidence.
-        Free models can take 10 to 30 seconds. {seconds} s elapsed.
+        Searching the documents, writing an answer and checking it against the evidence. Free
+        models can take 10 to 30 seconds. {seconds} s elapsed.
       </p>
     </div>
   );
 }
 
-export function ChatPanel({
-  client,
-  docCount,
-}: {
-  client: Pick<ApiClient, "chat">;
-  docCount: number | null;
-}) {
+export function ChatPanel({ client, docCount, examples, maxChars, questionsLeft, onSettled }: Props) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const nextId = useRef(1);
   const endRef = useRef<HTMLDivElement>(null);
   const busy = turns.some((t) => t.status === "pending");
+  const demo = examples !== undefined;
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
@@ -59,17 +65,23 @@ export function ChatPanel({
       patch(id, { status: "done", data: fromChat(question, response, Date.now() - startedAt) });
     } catch (err) {
       patch(id, { status: "error", error: errorMessage(err) });
+    } finally {
+      onSettled?.();
     }
+  }
+
+  function ask(question: string) {
+    const text = question.trim();
+    if (!text || busy) return;
+    const id = nextId.current++;
+    setTurns((prev) => [...prev, { id, question: text, startedAt: Date.now(), status: "pending" }]);
+    setDraft("");
+    void run(id, text);
   }
 
   function submit(e?: FormEvent) {
     e?.preventDefault();
-    const question = draft.trim();
-    if (!question || busy) return;
-    const id = nextId.current++;
-    setTurns((prev) => [...prev, { id, question, startedAt: Date.now(), status: "pending" }]);
-    setDraft("");
-    void run(id, question);
+    ask(draft);
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -79,18 +91,47 @@ export function ChatPanel({
     }
   }
 
+  const outOfQuestions = demo && questionsLeft === 0;
+
   return (
     <section className="chat" aria-label="Ask a question">
       <div className="thread" aria-live="polite">
         {turns.length === 0 && (
           <div className="thread-empty">
-            <h2>Ask about your documents</h2>
-            <p>
-              Answers cite the passages they come from, and an answer that the passages do not
-              support is replaced by a plain "not found" message. Each question is answered on
-              its own, without memory of earlier ones.
-            </p>
-            {docCount === 0 && <p className="muted">Upload a document first to get started.</p>}
+            {demo ? (
+              <>
+                <h2>Try a question</h2>
+                <p>
+                  This demo answers from one sample document, the AgentOps overview. Pick a
+                  question or write your own. Each answer cites its sources, and the workflow
+                  steps are shown under it.
+                </p>
+                <ul className="examples">
+                  {examples.map((q) => (
+                    <li key={q}>
+                      <button
+                        type="button"
+                        className="example"
+                        onClick={() => ask(q)}
+                        disabled={busy || outOfQuestions}
+                      >
+                        {q}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <>
+                <h2>Ask about your documents</h2>
+                <p>
+                  Answers cite the passages they come from, and an answer that the passages do not
+                  support is replaced by a plain "not found" message. Each question is answered on
+                  its own, without memory of earlier ones.
+                </p>
+                {docCount === 0 && <p className="muted">Upload a document first to get started.</p>}
+              </>
+            )}
           </div>
         )}
 
@@ -111,7 +152,7 @@ export function ChatPanel({
                 <button
                   type="button"
                   className="btn btn-small"
-                  disabled={busy}
+                  disabled={busy || outOfQuestions}
                   onClick={() => void run(turn.id, turn.question)}
                 >
                   Ask again
@@ -136,15 +177,32 @@ export function ChatPanel({
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder={
-            docCount === 0 ? "Upload a document, then ask a question" : "Ask a question about your documents"
+            docCount === 0 && !demo
+              ? "Upload a document, then ask a question"
+              : "Ask a question about the documents"
           }
-          maxLength={2000}
+          maxLength={maxChars ?? 2000}
         />
         <div className="composer-side">
-          <button type="submit" className="btn btn-primary" disabled={busy || !draft.trim()}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={busy || !draft.trim() || outOfQuestions}
+          >
             Ask
           </button>
-          <span className="hint">Enter to send, Shift+Enter for a new line</span>
+          <span className="hint">
+            {demo
+              ? [
+                  questionsLeft !== null && questionsLeft !== undefined
+                    ? `${questionsLeft} questions left today.`
+                    : null,
+                  maxChars ? `Up to ${maxChars} characters.` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" ")
+              : "Enter to send, Shift+Enter for a new line"}
+          </span>
         </div>
       </form>
     </section>

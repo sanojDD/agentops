@@ -16,7 +16,7 @@ def _safe_name(filename: str) -> str:
     return name or "document"
 
 
-def ingest_document(filename: str, data: bytes) -> DocumentInfo:
+def ingest_document(filename: str, data: bytes, scope: str = "private") -> DocumentInfo:
     settings = get_settings()
     name = _safe_name(filename)
 
@@ -42,4 +42,5 @@ def ingest_document(filename: str, data: bytes) -> DocumentInfo:
         records,
         max_documents=settings.max_documents,
         max_total_chunks=settings.max_total_chunks,
+        scope=scope,
     )

@@ -6,11 +6,23 @@ A single-page app for uploading documents, asking questions, and inspecting what
 
 | Screen | What it is for |
 |---|---|
-| **Connect** | Enter the server address and the access token. The page checks the server (waking it if it is asleep) and verifies the token before letting you in. |
+| **Connect** | A short description, a **Try the demo** button (one click, no sign-up, see [DEMO_MODE.md](DEMO_MODE.md)), and a collapsed **Owner sign in** form for the server address and access token. The page checks the server (waking it if it is asleep) and verifies the token before letting you in. |
 | **Ask** | Left: your documents (upload, drag and drop, delete). Right: a transcript. Each answer shows its citations as small numbered markers; clicking one jumps to the passage in the Evidence column, with the words from your question underlined. Below each answer: support score, number of searches and model calls, time, model, run ID (copyable), and the workflow steps the agent took. A retry shows up as a highlighted `rewrite` step. |
 | **History** | Every saved run (needs the database): when, question, result, time. Selecting a row shows the same answer view, so you can inspect old runs and failures. |
 
 Answers that the documents do not support are shown with an amber label ("Not in documents", "Not supported") and plain wording instead of being dressed up as answers. Failures name the cause and say what to do ("The free model hit its rate limit. Wait a minute, then ask again.").
+
+## Demo (visitor) mode in the UI
+
+A visitor who clicks "Try the demo" gets a read-only version of the same screens:
+
+- The header shows "Demo, read-only" and "Exit demo"; there is no History tab and no database status.
+- The sidebar shows only the sample document, with no upload, drag and drop, or delete.
+- The empty Ask screen offers four clickable example questions; the composer shows the questions left today and a 300-character limit.
+- Limits show up as plain sentences from the server (hourly limit, daily limit, busy), and an expired session sends the visitor back to the Connect screen with a notice.
+- The visitor session lives in `sessionStorage` only and is ignored once it expires.
+
+The owner sees the full interface; documents shared with the demo carry a "Demo" tag and visitor runs in History carry a "Visitor" tag.
 
 ## How it fits together
 
@@ -77,8 +89,9 @@ frontend/
     types.ts            API shapes + AnswerData (one shape for live answers and saved runs)
     lib/answer.ts       safe parsing of model text; highlighting question words in evidence
     lib/format.ts       bytes, durations, relative time, result labels and error hints
+    lib/demo.ts         example questions for demo visitors
     components/
-      ConnectScreen     address + token form, cold-start message
+      ConnectScreen     demo button + owner sign in, cold-start message
       Header            tabs, server name, database status, disconnect
       DocumentsPanel    upload, drag and drop, inline delete confirmation
       ChatPanel         transcript, composer, progress indicator, retry
@@ -118,7 +131,7 @@ Accessibility: real buttons and labels throughout, visible keyboard focus, answe
 
 ## Security model (read this before sharing the link)
 
-- **The token is never in the bundle.** If it were, anyone opening the public site could read it. You type it on the Connect screen instead.
+- **The owner token is never in the bundle.** If it were, anyone opening the public site could read it. You type it on the Connect screen instead. Demo visitors receive a different, short-lived, read-only token from the server when they click "Try the demo".
 - **Where it is stored.** With "Remember on this device" checked it is kept in the browser's `localStorage`; unchecked, in `sessionStorage` (gone when the tab closes). Any script running on the site's origin could read it, which is acceptable for a single-user tool you control and is why the site has no third-party scripts. Leave "Remember" off on shared computers.
 - **One shared token, full access.** Whoever has it can upload, delete and read history. Real accounts and per-user data are the next security step (see Limitations).
 - **Model and document text is never inserted as HTML.** It is parsed into plain pieces and rendered by React as text (covered by a unit test), so a malicious document cannot inject markup into the page.
@@ -142,7 +155,7 @@ You need Node.js 18 or newer (`node -v`). If missing: `winget install OpenJS.Nod
 | Command (from `frontend/`) | What it does |
 |---|---|
 | `npm run dev` | Dev server with hot reload |
-| `npm test` | 26 unit and component tests |
+| `npm test` | 44 unit and component tests |
 | `npm run typecheck` | TypeScript check |
 | `npm run build` | Type-check, then build into `dist/` |
 | `npm run preview` | Serve the built `dist/` locally |

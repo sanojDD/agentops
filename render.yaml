@@ -29,6 +29,10 @@ services:
         sync: false          # Neon connection string (pooled)
       - key: CORS_ORIGINS
         sync: false          # the frontend's address, e.g. https://agentops-web.onrender.com
+      - key: DEMO_ENABLED
+        value: "true"        # visitor demo; see docs/DEMO_MODE.md
+      - key: DEMO_QUESTIONS_PER_DAY
+        value: "60"          # set from your model's free quota
 
   # Frontend: a static site (free, served from Render's CDN, no cold starts).
   # Static sites only get build-time variables, so VITE_API_URL is baked in at build.

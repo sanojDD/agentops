@@ -42,6 +42,7 @@ erDiagram
         int pages
         int chunk_count
         datetime uploaded_at
+        string scope "private or demo"
     }
     chunks {
         string id PK
@@ -54,6 +55,7 @@ erDiagram
         string run_id PK "same as LangSmith run ID"
         datetime created_at
         string status "ok or error"
+        string actor "admin or visitor"
         text question
         text answer
         bool fallback
@@ -123,3 +125,10 @@ A proper retention policy and per-user separation come with real authentication.
 | First request after idle is slow | Neon compute woke from sleep (expected on the free plan) |
 | Documents list is empty after a deploy | `DATABASE_URL` is missing on Render, so the app is in memory-only mode |
 | Render deploy fails at `alembic upgrade head` | Database unreachable or the string is invalid: check the Render logs, fix `DATABASE_URL`, redeploy |
+
+## Schema changes so far
+| Migration | Change |
+|---|---|
+| `0001` | `documents`, `chunks`, `runs` |
+| `0002` | `documents.scope` (default `private`) and `runs.actor` (default `admin`) for demo mode. Existing rows keep the defaults, so nothing becomes public by accident. |
+

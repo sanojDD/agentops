@@ -979,3 +979,100 @@ textarea::placeholder {
     opacity: 0.5;
   }
 }
+
+/* ---------- demo mode and connect screen ---------- */
+
+.connect-panel .connect-lead {
+  color: var(--text-2);
+  line-height: 1.55;
+}
+.connect-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.btn-large {
+  height: 38px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+.owner summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-2);
+}
+.owner[open] summary {
+  margin-bottom: 12px;
+}
+.owner form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.topbar .btn {
+  height: 28px;
+  font-size: 13px;
+}
+.demo-badge {
+  padding: 2px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--text-2);
+  vertical-align: 1px;
+}
+.doc-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.doc-title .tag {
+  flex: none;
+  margin-right: 0;
+}
+
+.examples {
+  list-style: none;
+  padding: 0;
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.examples li {
+  border-bottom: 1px solid var(--border);
+}
+.example {
+  display: block;
+  width: 100%;
+  padding: 10px 2px;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: var(--accent);
+  cursor: pointer;
+}
+.example:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.example:disabled {
+  color: var(--text-3);
+  cursor: not-allowed;
+}
