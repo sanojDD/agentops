@@ -18,13 +18,29 @@ class ProviderSpec:
 
 
 def spec_for(settings: Settings, name: str) -> ProviderSpec:
-    secret = getattr(settings, f"{name}_api_key")
+    secret = getattr(settings, f"{name}_api_key", None)
     key = secret.get_secret_value().strip() if secret is not None else ""
+    
+    # Safe model resolution with fallback to prevent null values
+    model_val = getattr(settings, f"{name}_model", "") or ""
+    if not model_val:
+        model_defaults = {
+            "gemini": "gemini-2.5-pro",
+            "groq": "llama-3.3-70b-versatile",
+            "openrouter": "google/gemma-4-26b-a4b-it:free",
+            "mistral": "mistral-small-latest",
+        }
+        model_val = model_defaults.get(name, "")
+
+    # Ensure Gemini OpenAI compatibility endpoint never gets the "models/" prefix
+    if name == "gemini" and model_val.startswith("models/"):
+        model_val = model_val.replace("models/", "")
+
     return ProviderSpec(
         name=name,
-        base_url=getattr(settings, f"{name}_base_url"),
+        base_url=getattr(settings, f"{name}_base_url", ""),
         api_key=key or None,
-        model=getattr(settings, f"{name}_model"),
+        model=model_val,
         reasoning_effort=getattr(settings, f"{name}_reasoning_effort", "").strip(),
         extra_headers={"X-Title": settings.app_name} if name == "openrouter" else {},
     )
