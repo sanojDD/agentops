@@ -37,5 +37,13 @@ describe("format", () => {
       tone: "error",
     });
     expect(errorHint("rate_limited")).toContain("rate limit");
+    expect(outcome({ fallback: false, fallbackReason: null, errorKind: "token_budget" })).toEqual({
+      label: "Out of tokens",
+      tone: "error",
+    });
+    expect(errorHint("token_budget")).toContain("MAX_ANSWER_TOKENS");
+    expect(outcome({ fallback: false, fallbackReason: null, errorKind: "all_providers_failed" }).label).toBe(
+      "Providers unavailable",
+    );
   });
 });

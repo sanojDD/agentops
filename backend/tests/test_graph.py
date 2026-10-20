@@ -22,7 +22,7 @@ def fake_provider(*outcomes):
     Exception = raised). Fails the test if called more often than expected."""
     calls = iter(outcomes)
 
-    async def _fake(prompt, *, model, max_tokens=64):
+    async def _fake(prompt, **kwargs):
         try:
             outcome = next(calls)
         except StopIteration:

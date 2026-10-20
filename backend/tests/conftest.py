@@ -8,6 +8,21 @@ from app.graph import nodes
 from app.retrieval.store import get_store
 
 
+PROVIDER_ENV = [
+    f"{name}_{field}"
+    for name in ("OPENROUTER", "GROQ", "GEMINI", "MISTRAL")
+    for field in ("API_KEY", "MODEL", "BASE_URL", "REASONING_EFFORT")
+] + ["LLM_PROVIDER", "LLM_FALLBACK_PROVIDERS", "MAX_ANSWER_TOKENS", "MAX_REWRITE_TOKENS",
+     "LLM_TIMEOUT_SECONDS", "LLM_TOTAL_TIMEOUT_SECONDS"]
+
+
+@pytest.fixture(autouse=True)
+def no_real_providers(monkeypatch):
+    """Tests never call a real model provider, even if keys are set in your shell or .env."""
+    for name in PROVIDER_ENV:
+        monkeypatch.delenv(name, raising=False)
+
+
 @pytest.fixture(autouse=True)
 def no_real_db(monkeypatch):
     """Safety net: tests never touch a real database, even if DATABASE_URL is

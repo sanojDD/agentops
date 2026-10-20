@@ -42,4 +42,11 @@
 | 38 | Visitor questions are stored (actor = visitor) and the visitor is told so | Lets the owner review real behaviour, which feeds evaluation | Privacy requirements change |
 | 39 | Optional uptime monitor on `/health`, which does not touch the database | Avoids the one-minute cold start for the first visitor without waking Neon | Hosting plan changes |
 | 40 | Frontend shows server-written limit messages verbatim | One source of truth for wording; no mismatch between UI and API | Localisation |
+| 41 | One OpenAI-compatible client for OpenRouter, Groq, Gemini (its OpenAI-compatible endpoint) and Mistral | All four speak the same protocol; adding a provider is a few lines in the registry | A provider needs features outside that protocol |
+| 42 | Failover only on rate limit, timeout, 5xx and token starvation; never on bad key or bad model | Backups should absorb outages and quotas, not hide configuration mistakes | n/a |
+| 43 | Token budgets raised to 2048 (answers) and 512 (rewrites) and made environment variables | Reasoning models spend budget on hidden thinking; 512/96 produced empty answers | Models with very long reasoning |
+| 44 | Reasoning effort is opt-in per provider and sent only when set | Not every model accepts the parameter, and a rejected parameter would break a working setup | A provider standardises it |
+| 45 | An empty answer with `finish_reason=length` is raised as `token_budget`, not returned as an empty string | Gives a precise error, a log with the reasoning token count, and lets failover help | n/a |
+| 46 | Unknown provider names stop the server at startup | A typo should fail loudly, not silently use the wrong provider | n/a |
+| 47 | A self-check command (`python -m app.tools.check_providers`) instead of claiming live verification | Keys, model names and free tiers can only be verified with the real services; the command does it without printing keys | n/a |
 

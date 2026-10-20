@@ -117,3 +117,23 @@ Invoke-RestMethod -Method Post "$base/api/v1/demo/session"
 ### Limits on /api/v1/chat for visitors
 `422` question longer than the cap, `429` hourly limit, daily limit, or server busy (with a readable `detail` and a `Retry-After` header). Visitors only search demo documents; `GET /api/v1/documents` returns only those.
 
+## Model providers
+See [PROVIDERS.md](PROVIDERS.md) for configuration.
+
+### POST /api/v1/llm/check
+Owner only. Makes one real request. Optional query parameter `provider` (`openrouter`, `groq`, `gemini`, `mistral`) tests that provider alone; without it the configured chain is used. Returns `provider`, `model`, `reply_preview`, `finish_reason`, `reasoning_tokens`, `latency_ms`.
+```powershell
+Invoke-RestMethod -Method Post "$base/api/v1/llm/check?provider=groq" -Headers $h
+```
+
+### GET /api/v1/llm/providers
+Owner only. For each provider: whether a key is set (never the key), the model, the reasoning effort, and its role (`primary`, `fallback`, `unused`), plus the current token budgets.
+
+### Provider error codes
+| Status | Meaning |
+|---|---|
+| 429 | Provider rate limit (and no backup answered) |
+| 502 | Bad key, unknown model, provider error, or `token_budget` (the model spent its whole budget thinking) |
+| 503 | No provider configured, or every configured provider failed |
+| 504 | Provider timeout |
+

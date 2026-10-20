@@ -7,7 +7,8 @@ Observable agentic RAG / LLMOps platform. Upload documents, ask questions, get a
 ## What it does
 1. Upload `.txt`, `.md` or `.pdf` documents; they are chunked, indexed and saved in PostgreSQL.
 2. Ask a question. A LangGraph workflow retrieves evidence, answers from it with `[n]` citations, verifies the answer is supported, retries retrieval once if not, and otherwise returns an honest "not found".
-3. Every run is saved (History) and traced in LangSmith; the `run_id` is the same in both.
+3. The model can be OpenRouter, Groq, Gemini or Mistral, with automatic backups (see docs/PROVIDERS.md).
+4. Every run is saved (History) and traced in LangSmith; the `run_id` is the same in both.
 
 ## Repository layout
 ```
@@ -44,6 +45,7 @@ Optional persistence: set `DATABASE_URL=sqlite:///./agentops_dev.db` in `.env` a
 ## Docs
 | Doc | What it explains |
 |---|---|
+| [docs/PROVIDERS.md](docs/PROVIDERS.md) | Model providers (OpenRouter, Groq, Gemini, Mistral), failover, the empty-answer fix, the self-check |
 | [docs/DEMO_MODE.md](docs/DEMO_MODE.md) | Visitor access, limits, abuse protection, privacy, how to turn it on |
 | [docs/FRONTEND.md](docs/FRONTEND.md) | The UI: screens, design notes, security model, local run, deploy, troubleshooting |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, diagrams, how the pieces connect |

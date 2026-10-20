@@ -4,14 +4,13 @@ import re
 from app.core.config import get_settings
 from app.graph.edges import RETRYABLE_KINDS
 from app.graph.state import AgentState
-from app.providers.openrouter import ProviderError, complete
+from app.providers.llm import ProviderError, complete
 from app.retrieval.bm25 import tokenize
 from app.retrieval.errors import StorageError
 from app.retrieval.store import get_store
 
 RETRY_DELAY_SECONDS = 1.0
-MAX_ANSWER_TOKENS = 512
-MAX_REWRITE_TOKENS = 96
+# Output budgets come from settings (MAX_ANSWER_TOKENS=2048, MAX_REWRITE_TOKENS=512 by default).
 ABSTAIN_MARKER = "INSUFFICIENT_EVIDENCE"
 CITATION_RE = re.compile(r"\[(\d+)\]")
 
@@ -118,8 +117,7 @@ async def rewrite_node(state: AgentState) -> dict:
     try:
         result = await complete(
             REWRITE_PROMPT.format(question=question),
-            model=get_settings().openrouter_model,
-            max_tokens=MAX_REWRITE_TOKENS,
+            max_tokens=get_settings().max_rewrite_tokens,
         )
     except ProviderError:
         return {"search_query": question, "steps": ["rewrite"]}
@@ -147,9 +145,7 @@ async def generate_node(state: AgentState) -> dict:
         context=_format_context(state["chunks"]), question=state["question"]
     )
     try:
-        result = await complete(
-            prompt, model=get_settings().openrouter_model, max_tokens=MAX_ANSWER_TOKENS
-        )
+        result = await complete(prompt, max_tokens=get_settings().max_answer_tokens)
     except ProviderError as exc:
         return {
             "generate_attempts": attempts,
@@ -162,6 +158,7 @@ async def generate_node(state: AgentState) -> dict:
         "generate_attempts": attempts,
         "answer": result["content"],
         "model": result["model"],
+        "provider": result.get("provider"),
         "error_kind": None,
         "error_message": None,
         "steps": ["generate"],

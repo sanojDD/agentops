@@ -43,7 +43,7 @@ def test_upload_list_delete_and_validation():
 
 
 def test_upload_then_chat_returns_sources(monkeypatch):
-    async def fake(prompt, *, model, max_tokens=64):
+    async def fake(prompt, **kwargs):
         return {"content": "Return products within 30 days of purchase for a full refund [1].",
                 "model": "fake", "usage": None}
 

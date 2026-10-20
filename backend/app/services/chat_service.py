@@ -6,6 +6,7 @@ import uuid
 from app.core.config import get_settings
 from app.db.session import db_enabled
 from app.graph.builder import get_graph
+from app.providers.registry import primary_model
 from app.services import run_service
 
 logger = logging.getLogger("agentops.chat")
@@ -75,6 +76,7 @@ async def run_chat(question: str, *, scope: str = "all", actor: str = "admin") -
                 "fallback_reason": final.get("fallback_reason"),
                 "verify_reason": final.get("verify_reason"),
                 "support_score": final.get("support_score"),
+                "provider": final.get("provider"),
                 "error_kind": final.get("error_kind"),
                 "latency_ms": latency_ms,
                 "steps": final.get("steps", []),
@@ -90,7 +92,7 @@ async def run_chat(question: str, *, scope: str = "all", actor: str = "admin") -
         "generate_attempts": final.get("generate_attempts", 0),
         "latency_ms": latency_ms,
         "steps": final.get("steps", []),
-        "model": final.get("model", settings.openrouter_model),
+        "model": final.get("model", primary_model(settings)),
         "support_score": final.get("support_score"),
     }
 
@@ -141,7 +143,7 @@ async def run_chat(question: str, *, scope: str = "all", actor: str = "admin") -
         "run_id": str(run_id),
         "fallback": final.get("fallback", False),
         "fallback_reason": final.get("fallback_reason"),
-        "model": final.get("model", settings.openrouter_model),
+        "model": final.get("model", primary_model(settings)),
         "sources": sources,
         "support_score": final.get("support_score"),
         "retrieval_attempts": final.get("retrieval_attempts", 0),

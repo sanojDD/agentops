@@ -93,7 +93,8 @@ If accepted, sources are the passages the model cited. If the model forgot to ci
 | Retrieval or verification fails the first time | Rewrite query, search wider, try once more |
 | Fails the second time | Fallback (never a third attempt) |
 | Provider timeout or 5xx | Retry the answer call after 1 s (counts toward a 3-call budget) |
-| Rate limit (429) | No retry; return 429 (retrying wastes free quota) |
+| Rate limit (429) | No retry on the same provider. With backup providers configured the call fails over to the next one; otherwise return 429 |
+| Token starvation (a reasoning model returns nothing because thinking used the whole budget) | Reported as `token_budget` (or fails over); the budgets are 2048 for answers and 512 for rewrites. See [PROVIDERS.md](PROVIDERS.md) |
 | Auth, bad request, not configured | No retry; return 502/503 (our configuration problem) |
 | No documents at all | Fallback immediately, zero LLM calls |
 

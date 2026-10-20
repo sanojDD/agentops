@@ -31,8 +31,11 @@ Full walkthrough and troubleshooting: [FRONTEND.md](FRONTEND.md).
 ## Demo mode (optional)
 Set `DEMO_ENABLED=true` on the API to let visitors try a read-only copy from the frontend's "Try the demo" button. Limits, privacy, the optional uptime monitor and troubleshooting are in [DEMO_MODE.md](DEMO_MODE.md). Migration `0002` runs automatically with the next deploy.
 
+## Model providers
+Set the API key of the provider you use (`OPENROUTER_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY` or `MISTRAL_API_KEY`), `LLM_PROVIDER` for the primary and `LLM_FALLBACK_PROVIDERS` for backups. See [PROVIDERS.md](PROVIDERS.md). After changing keys, run `python -m app.tools.check_providers` locally, or call `POST /api/v1/llm/check?provider=<name>` on the deployed API.
+
 ## Optional environment variables (API)
-`RAG_TOP_K`, `RAG_MIN_COVERAGE`, `RAG_MIN_SUPPORT`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MAX_UPLOAD_BYTES`, `MAX_DOCUMENTS`, `MAX_TOTAL_CHUNKS`. Defaults are in `backend/app/core/config.py`.
+`MAX_ANSWER_TOKENS`, `MAX_REWRITE_TOKENS`, `LLM_TIMEOUT_SECONDS`, `RAG_TOP_K`, `RAG_MIN_COVERAGE`, `RAG_MIN_SUPPORT`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MAX_UPLOAD_BYTES`, `MAX_DOCUMENTS`, `MAX_TOTAL_CHUNKS`. Defaults are in `backend/app/core/config.py`.
 For sensitive documents also set `LANGSMITH_HIDE_INPUTS=true` and `LANGSMITH_HIDE_OUTPUTS=true`.
 
 ## Live smoke test (after every deploy)

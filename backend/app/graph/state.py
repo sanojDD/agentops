@@ -15,6 +15,7 @@ class AgentState(TypedDict, total=False):
     generate_attempts: int  # number of LLM answer calls so far
     answer: str
     model: str
+    provider: str | None  # which provider answered (differs from the primary after a failover)
     verdict: str  # "accepted" | "rejected"
     verify_reason: str | None
     support_score: float | None

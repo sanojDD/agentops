@@ -39,7 +39,7 @@ def make_settings(**overrides) -> Settings:
 def fake_complete(*outcomes):
     calls = iter(outcomes)
 
-    async def _fake(prompt, *, model, max_tokens=64):
+    async def _fake(prompt, **kwargs):
         outcome = next(calls)
         return {"content": outcome, "model": "fake-model", "usage": None}
 

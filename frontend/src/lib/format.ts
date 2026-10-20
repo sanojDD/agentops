@@ -51,16 +51,21 @@ const ERROR_LABELS: Record<string, string> = {
   bad_request: "Provider rejected request",
   not_configured: "Not configured",
   storage_unavailable: "Storage unavailable",
+  token_budget: "Out of tokens",
+  all_providers_failed: "Providers unavailable",
 };
 
 const ERROR_HINTS: Record<string, string> = {
   rate_limited: "The free model hit its rate limit. Wait a minute, then ask again.",
   timeout: "The model did not answer in time. Ask again.",
   upstream: "The model provider had an error. Ask again in a moment.",
-  auth: "The server's model API key was rejected. Check OPENROUTER_API_KEY on the server.",
-  bad_request: "The model provider rejected the request. Check OPENROUTER_MODEL on the server.",
-  not_configured: "The server has no model API key. Set OPENROUTER_API_KEY.",
+  auth: "The server's model API key was rejected. Check the API key of the configured provider.",
+  bad_request: "The model provider rejected the request. Check the model name of the configured provider.",
+  not_configured: "The server has no model API key. Set the API key for LLM_PROVIDER.",
   storage_unavailable: "The database could not be reached. Check DATABASE_URL and Neon.",
+  token_budget:
+    "The model spent its whole output budget thinking and wrote no answer. Raise MAX_ANSWER_TOKENS or set a reasoning effort on the server.",
+  all_providers_failed: "Every configured model provider failed. Try again in a moment.",
 };
 
 export interface OutcomeInput {

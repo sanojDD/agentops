@@ -10,7 +10,7 @@
 | Graph | `graph/` | LangGraph state, nodes, edges, builder |
 | Retrieval | `retrieval/` | Parsing, chunking, BM25 index, document store (database-backed) |
 | Database | `db/` | SQLAlchemy models, sessions, all SQL (`repo.py`); migrations in `alembic/` |
-| Providers | `providers/` | Talk to an LLM vendor; classify errors |
+| Providers | `providers/` | One OpenAI-compatible client for OpenRouter, Groq, Gemini and Mistral; failover between them; error classification |
 | Core | `core/` | Settings, logging, request ID context, auth (roles), demo tokens, demo limits, CORS |
 | Demo | `demo/` | Bundled sample document and idempotent seeding |
 

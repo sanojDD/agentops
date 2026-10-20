@@ -67,7 +67,7 @@ Defaults are conservative because the model is on a free quota. Change them with
 When a limit is hit the API answers `429` with a plain sentence and a `Retry-After` header, and the page shows the sentence ("You have reached the demo's hourly question limit. Try again in 12 minutes."). When the daily cap is reached the "Try the demo" button is disabled and says so. The owner is never subject to these limits.
 
 ### Choosing the daily cap
-One question costs one to four model calls (an answer, plus a rewrite and another answer on a retry). Free models on OpenRouter have had small daily request allowances that depend on your account, and they change, so look up your current allowance and set `DEMO_QUESTIONS_PER_DAY` so that questions times the typical calls stays below it, leaving room for your own testing. The cap is shared with nobody but the visitors; your own questions use the same provider quota but are not counted.
+One question costs one to four model calls (an answer, plus a rewrite and another answer on a retry). Free models on OpenRouter have had small daily request allowances that depend on your account, and they change, so look up your current allowance and set `DEMO_QUESTIONS_PER_DAY` so that questions times the typical calls stays below it, leaving room for your own testing. If you configure backup providers (see [PROVIDERS.md](PROVIDERS.md)), a rate-limited primary fails over to another provider's quota, which can stretch the cap. The cap is shared with nobody but the visitors; your own questions use the same provider quota but are not counted.
 
 ## Abuse scenarios
 

@@ -27,7 +27,7 @@ H = {"X-Admin-Token": "test-token"}
 def fake_complete(*outcomes):
     calls = iter(outcomes)
 
-    async def _fake(prompt, *, model, max_tokens=64):
+    async def _fake(prompt, **kwargs):
         outcome = next(calls)
         if isinstance(outcome, Exception):
             raise outcome
