@@ -2,7 +2,7 @@
 
 AgentOps can talk to four free-tier model providers through one client: **OpenRouter** (default), **Groq**, **Google Gemini** and **Mistral**. Pick a primary, optionally list backups, and the app switches between them for you.
 
-All four speak the same chat-completions protocol, so there is one implementation (`providers/openai_compat.py`) and a small registry (`providers/registry.py`). `providers/llm.py` holds the single function the rest of the app calls, `complete()`.
+Groq, Mistral and OpenRouter speak the same chat-completions protocol, so one client (`providers/openai_compat.py`) serves them. Gemini uses Google's own API by default (`providers/gemini_native.py`; its OpenAI-compatible endpoint is available as an option, see below). A small registry (`providers/registry.py`) describes all four. `providers/llm.py` holds the single function the rest of the app calls, `complete()`.
 
 ## Setup
 
@@ -13,7 +13,7 @@ All four speak the same chat-completions protocol, so there is one implementatio
 | Gemini | `GEMINI_API_KEY` | `GEMINI_MODEL` (`gemini-2.5-flash`) | aistudio.google.com, Get API key |
 | Mistral | `MISTRAL_API_KEY` | `MISTRAL_MODEL` (`mistral-small-latest`) | console.mistral.ai, API keys |
 
-Free tiers, model names and rate limits change and can disappear; check each provider's current limits page before relying on one, and treat the default model names as starting points (the self-check below tells you whether a name exists). Each provider also has `<NAME>_BASE_URL` (defaults to the official endpoint; Gemini uses Google's OpenAI-compatible endpoint).
+Free tiers, model names and rate limits change and can disappear; check each provider's current limits page before relying on one, and treat the default model names as starting points (the self-check below tells you whether a name exists). Each provider also has `<NAME>_BASE_URL` (defaults to the official endpoint).
 
 Keys go in `.env` locally and in the API service's Environment on Render. They are never committed, logged, returned by the API, or printed by the self-check.
 
@@ -42,6 +42,31 @@ If every provider in the chain fails with a failover-eligible error, the API ret
 
 The provider that actually answered is in the server log (`chat_run` has a `provider` field) and the LangSmith trace (`llm_complete`).
 
+## Gemini specifics
+
+- **Two ways to call Gemini.** `GEMINI_MODE=native` (default) uses Google's own `generateContent` API, with the key sent in the `x-goog-api-key` header (never in the URL). `GEMINI_MODE=openai` uses Google's OpenAI-compatible endpoint instead. If one ever misbehaves, try the other.
+- **Thinking.** Gemini 2.5 models think before answering and the thinking counts against the output budget. `GEMINI_REASONING_EFFORT=none` turns it off on models that allow it (2.5 Flash does; 2.5 Pro cannot be switched off and will answer 400 if you try, so leave it unset there).
+- **Availability.** Google's free tier is not offered everywhere, and the check is made on the **server's** location (your Render region), not yours. A rejection such as "User location is not supported" or "free tier is not available" means: use another provider, deploy the API in another region, or enable billing in Google AI Studio.
+- **Invalid keys come back as HTTP 400**, not 401. The app recognises Google's "API key not valid" message and reports it as an authentication error.
+
+## Diagnosing "Provider rejected request"
+
+That label means the provider answered 400, 404 or 422 (or a similar refusal). The page cannot show the provider's own wording, but you can read it in two places, with your key already removed:
+
+1. **Self-check (fastest):** `python -m app.tools.check_providers --provider gemini` prints `provider said: ...`.
+2. **Server log:** every rejected request writes a `provider_error` line with `provider`, `model`, `status`, `kind` and `provider_message` (Render, Logs).
+
+Common reasons and the fix:
+
+| The provider says | Meaning | Fix |
+|---|---|---|
+| "API key not valid" | Wrong, deleted or mistyped key | Create a new key; update `.env` and Render |
+| "User location is not supported" / "free tier is not available" | The server's region or your account is not eligible | Another provider, another Render region, or enable billing |
+| "models/... is not found" | The model name is wrong or retired | Pick a name from the provider's model list; the self-check warns about unknown names |
+| "Budget 0 is invalid" (Gemini 2.5 Pro) | That model cannot disable thinking | Unset `GEMINI_REASONING_EFFORT` |
+| "Invalid JSON payload / unknown field" | A request field this endpoint rejects | Switch `GEMINI_MODE` (or tell me the exact message and I will adjust the request) |
+| A 429 message | Rate limit or quota | Wait, lower usage, or add a backup provider |
+
 ## The token starvation bug (empty answers) and its fix
 
 **Symptom:** a reasoning model (for example `nvidia/nemotron-3.5-lightning:free`) returned an empty answer, so verification rejected it, the agent retried, and the question ended in the fallback message.
@@ -57,7 +82,7 @@ The provider that actually answered is in the server log (`chat_run` has a `prov
    |---|---|---|
    | `OPENROUTER_REASONING_EFFORT` | `"reasoning": {"effort": ...}` | `none`, `low`, `medium`, `high` |
    | `GROQ_REASONING_EFFORT` | `"reasoning_effort": ...` | model dependent (some models accept `none`, gpt-oss models `low`/`medium`/`high`) |
-   | `GEMINI_REASONING_EFFORT` | `"reasoning_effort": ...` | `none`, `low`, `medium`, `high` |
+   | `GEMINI_REASONING_EFFORT` | native mode: `thinkingConfig.thinkingBudget`; `GEMINI_MODE=openai`: `reasoning_effort` | native: `none` (thinking off), `dynamic`, or a number of tokens; openai mode: `none`, `low`, `medium`, `high` |
    | Mistral | no equivalent parameter | not sent |
 
    Leave it empty and nothing is sent. Some models cannot switch reasoning off and answer `400` if you ask; then rely on the budget instead.
@@ -103,7 +128,9 @@ The automated tests use local servers that imitate the four providers, including
 |---|---|
 | Self-check: `FAIL auth` | Wrong or revoked key, or no credits. Create a new key and update `.env` and Render |
 | `WARN model ... is not in the provider's model list` | Misspelled or retired model name; pick one from the provider's model list |
-| `FAIL bad_request` on Gemini | Gemini reports an invalid API key as a 400; check the key first |
+| `FAIL auth ... API key not valid` on Gemini | Wrong or deleted key (Google reports this as HTTP 400) |
+| `bad_request` on Gemini with a location or free-tier message | The server's region or account is not eligible for the free tier; see Gemini specifics |
+| Gemini rejected, other providers work | Run the self-check for Gemini and read `provider said:`; try `GEMINI_MODE=openai` |
 | `token_budget` errors | Raise `MAX_ANSWER_TOKENS`, set the provider's `*_REASONING_EFFORT`, or choose a non-reasoning model |
 | `400` after setting a reasoning effort | That model does not accept the parameter; unset it |
 | Server will not start: "LLM_PROVIDER must be one of" | Typo in `LLM_PROVIDER` or `LLM_FALLBACK_PROVIDERS` |

@@ -60,7 +60,8 @@ const ERROR_HINTS: Record<string, string> = {
   timeout: "The model did not answer in time. Ask again.",
   upstream: "The model provider had an error. Ask again in a moment.",
   auth: "The server's model API key was rejected. Check the API key of the configured provider.",
-  bad_request: "The model provider rejected the request. Check the model name of the configured provider.",
+  bad_request:
+    "The model provider rejected the request. The provider's own reason is in the server log, or run python -m app.tools.check_providers.",
   not_configured: "The server has no model API key. Set the API key for LLM_PROVIDER.",
   storage_unavailable: "The database could not be reached. Check DATABASE_URL and Neon.",
   token_budget:

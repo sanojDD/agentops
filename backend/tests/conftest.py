@@ -2,9 +2,12 @@ import pytest
 
 from app.db import session as session_mod
 from app.db.base import Base
+from app.core.config import Settings, get_settings
 from app.core.limits import reset_demo_limits
 from app.demo.seed import reset_seed_state
 from app.graph import nodes
+from app.main import app
+from app.providers import llm as llm_module
 from app.retrieval.store import get_store
 
 
@@ -12,7 +15,7 @@ PROVIDER_ENV = [
     f"{name}_{field}"
     for name in ("OPENROUTER", "GROQ", "GEMINI", "MISTRAL")
     for field in ("API_KEY", "MODEL", "BASE_URL", "REASONING_EFFORT")
-] + ["LLM_PROVIDER", "LLM_FALLBACK_PROVIDERS", "MAX_ANSWER_TOKENS", "MAX_REWRITE_TOKENS",
+] + ["GEMINI_MODE", "LLM_PROVIDER", "LLM_FALLBACK_PROVIDERS", "MAX_ANSWER_TOKENS", "MAX_REWRITE_TOKENS",
      "LLM_TIMEOUT_SECONDS", "LLM_TOTAL_TIMEOUT_SECONDS"]
 
 
@@ -58,3 +61,17 @@ def sqlite_db(tmp_path, monkeypatch, no_real_db):
     yield url
     session_mod.reset_engine()
     get_store.cache_clear()
+
+
+@pytest.fixture
+def use(monkeypatch):
+    """Make the provider layer, the graph and the API use these settings."""
+
+    def apply(settings: Settings) -> Settings:
+        monkeypatch.setattr(llm_module, "get_settings", lambda: settings)
+        monkeypatch.setattr("app.graph.nodes.get_settings", lambda: settings)
+        app.dependency_overrides[get_settings] = lambda: settings
+        return settings
+
+    yield apply
+    app.dependency_overrides.clear()

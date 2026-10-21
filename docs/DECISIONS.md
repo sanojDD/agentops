@@ -49,4 +49,8 @@
 | 45 | An empty answer with `finish_reason=length` is raised as `token_budget`, not returned as an empty string | Gives a precise error, a log with the reasoning token count, and lets failover help | n/a |
 | 46 | Unknown provider names stop the server at startup | A typo should fail loudly, not silently use the wrong provider | n/a |
 | 47 | A self-check command (`python -m app.tools.check_providers`) instead of claiming live verification | Keys, model names and free tiers can only be verified with the real services; the command does it without printing keys | n/a |
+| 48 | Gemini uses Google's native `generateContent` API by default; `GEMINI_MODE=openai` keeps the OpenAI-compatible endpoint | The native API is Google's primary, best-documented interface and has no compatibility layer to go wrong | If the compatibility endpoint becomes the recommended path |
+| 49 | The provider's own error message is logged (key redacted, 200 characters) and shown by the self-check, but not returned by the API | The owner can see why a request was rejected; visitors and clients never see provider internals | n/a |
+| 50 | Well-known provider messages are recognised (invalid key reported as 400, unsupported location, unknown model) and given accurate public messages | "Provider rejected request" alone is not actionable | New provider messages appear |
+| 51 | Gemini thinking is controlled with `none` / `dynamic` / a token number; other values are ignored with a log line | The native API takes a numeric budget; a wrong guess at a mapping would be worse than not sending one | Google documents a stable effort scale |
 

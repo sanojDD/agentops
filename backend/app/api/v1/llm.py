@@ -35,6 +35,7 @@ def list_providers(settings: Settings = Depends(get_settings)) -> ProviderList:
                 configured=spec.configured,
                 model=spec.model,
                 reasoning_effort=spec.reasoning_effort or None,
+                api=spec.api_style,
                 role=(
                     "primary"
                     if spec.name == chain[0]

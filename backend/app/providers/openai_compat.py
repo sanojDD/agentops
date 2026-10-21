@@ -10,6 +10,8 @@ from app.providers.base import (
     TOKEN_BUDGET_MESSAGE,
     ProviderError,
     classify_status,
+    error_from_response,
+    extract_message,
     redact,
 )
 from app.providers.registry import ProviderSpec
@@ -78,10 +80,9 @@ async def call(
             "upstream", "Could not reach the LLM provider.", provider=spec.name
         ) from exc
 
-    debug = redact(resp.text[:200], spec.api_key)
     if resp.status_code != 200:
-        kind, message = classify_status(resp.status_code)
-        raise ProviderError(kind, message, resp.status_code, provider=spec.name, debug=debug)
+        raise error_from_response(spec.name, spec.model, spec.api_key, resp.status_code, resp.text)
+    debug = redact(extract_message(resp.text), spec.api_key)
 
     try:
         data = resp.json()

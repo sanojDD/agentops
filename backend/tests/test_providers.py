@@ -12,45 +12,12 @@ from app.services.chat_service import ChatError, run_chat
 from app.services.document_service import ingest_document
 from app.tools import check_providers
 from tests.fake_llm import FakeLLM, completion, failing, ok_handler, reasoning_model
+from tests.helpers import KEYS, make_settings, run
 
-KEYS = {
-    "openrouter": "sk-or-v1-SECRET-openrouter-0001",
-    "groq": "gsk_SECRET_groq_0002",
-    "gemini": "AIzaSECRETgemini0003",
-    "mistral": "SECRETmistral0004",
-}
 ADMIN = {"X-Admin-Token": "adm"}
 DOC = b"Customers may return any product within 30 days of purchase for a full refund."
 QUESTION = "What is the return policy for products?"
 SUPPORTED = "Customers may return any product within 30 days of purchase for a full refund [1]."
-
-
-def make_settings(servers: dict[str, FakeLLM] | None = None, **overrides) -> Settings:
-    """Settings that ignore any real .env and point providers at fake servers."""
-    values: dict = {"admin_token": "adm"}
-    for name, server in (servers or {}).items():
-        values[f"{name}_api_key"] = KEYS[name]
-        values[f"{name}_base_url"] = server.base_url
-    values.update(overrides)
-    return Settings(_env_file=None, **values)
-
-
-@pytest.fixture
-def use(monkeypatch):
-    """Make the provider layer, the graph and the API use these settings."""
-
-    def apply(settings: Settings) -> Settings:
-        monkeypatch.setattr(llm_module, "get_settings", lambda: settings)
-        monkeypatch.setattr("app.graph.nodes.get_settings", lambda: settings)
-        app.dependency_overrides[get_settings] = lambda: settings
-        return settings
-
-    yield apply
-    app.dependency_overrides.clear()
-
-
-def run(coro):
-    return asyncio.run(coro)
 
 
 # ---------------- configuration ----------------
@@ -75,15 +42,23 @@ def test_settings_repr_never_shows_keys():
 
 
 # ---------------- requests per provider ----------------
-@pytest.mark.parametrize("name", ["openrouter", "groq", "gemini", "mistral"])
-def test_each_provider_gets_a_correct_request(name, use):
+@pytest.mark.parametrize(
+    "name,extra,path",
+    [
+        ("openrouter", {}, "/v1/chat/completions"),
+        ("groq", {}, "/v1/chat/completions"),
+        ("gemini", {"gemini_mode": "openai"}, "/v1/openai/chat/completions"),
+        ("mistral", {}, "/v1/chat/completions"),
+    ],
+)
+def test_each_provider_gets_a_correct_request(name, extra, path, use):
     with FakeLLM(ok_handler()) as server:
-        use(make_settings({name: server}, **{f"{name}_model": "m-1", f"{name}_reasoning_effort": "none"}))
+        use(make_settings({name: server}, **{f"{name}_model": "m-1", f"{name}_reasoning_effort": "none"}, **extra))
         result = run(complete("hello", max_tokens=300, provider=name))
 
     assert result["provider"] == name and result["content"] == "pong"
     request = server.completions[0]
-    assert request["path"] == "/v1/chat/completions"
+    assert request["path"] == path
     assert request["headers"]["authorization"] == f"Bearer {KEYS[name]}"
     body = request["body"]
     assert body["model"] == "m-1" and body["max_tokens"] == 300
@@ -188,7 +163,7 @@ def test_rate_limited_primary_falls_over_to_the_backup(use):
 
 def test_starved_primary_falls_over_to_the_backup(use):
     with FakeLLM(reasoning_model()) as a, FakeLLM(ok_handler("backup answer")) as b:
-        use(chain(("openrouter", a), [("gemini", b)]))
+        use(chain(("openrouter", a), [("gemini", b)], gemini_mode="openai"))
         assert run(complete("q", max_tokens=96))["provider"] == "gemini"
 
 
@@ -283,9 +258,10 @@ def test_providers_endpoint_lists_status_without_secrets(use):
         r = client.get("/api/v1/llm/providers", headers=ADMIN)
     data = r.json()
     by_name = {p["name"]: p for p in data["providers"]}
-    assert by_name["openrouter"] == {"name": "openrouter", "configured": True, "model": "google/gemma-4-26b-a4b-it:free", "reasoning_effort": None, "role": "primary"}
+    assert by_name["openrouter"] == {"name": "openrouter", "configured": True, "model": "google/gemma-4-26b-a4b-it:free", "reasoning_effort": None, "api": "openai", "role": "primary"}
     assert by_name["groq"]["role"] == "fallback" and by_name["groq"]["configured"] is False
     assert by_name["groq"]["reasoning_effort"] == "low" and by_name["gemini"]["role"] == "unused"
+    assert by_name["gemini"]["api"] == "gemini_native"
     assert data["max_answer_tokens"] == 2048
     assert KEYS["openrouter"] not in r.text
 

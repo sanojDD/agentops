@@ -18,6 +18,7 @@ class ProviderInfo(BaseModel):
     configured: bool  # an API key is set (the key itself is never returned)
     model: str
     reasoning_effort: str | None  # None = parameter not sent
+    api: str  # "openai" or "gemini_native"
     role: str  # "primary" | "fallback" | "unused"
 
 

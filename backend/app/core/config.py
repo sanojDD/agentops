@@ -45,7 +45,8 @@ class Settings(BaseSettings):
     groq_reasoning_effort: str = ""
 
     gemini_api_key: SecretStr | None = None
-    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    gemini_mode: str = "native"  # "native" (Google's own API) or "openai" (OpenAI-compatible endpoint)
     gemini_model: str = "gemini-2.5-flash"
     gemini_reasoning_effort: str = ""
 
@@ -90,6 +91,14 @@ class Settings(BaseSettings):
         if name not in PROVIDER_NAMES:
             raise ValueError(f"LLM_PROVIDER must be one of: {', '.join(PROVIDER_NAMES)} (got {value!r})")
         return name
+
+    @field_validator("gemini_mode")
+    @classmethod
+    def _gemini_mode(cls, value: str) -> str:
+        mode = value.strip().lower()
+        if mode not in ("native", "openai"):
+            raise ValueError(f"GEMINI_MODE must be 'native' or 'openai' (got {value!r})")
+        return mode
 
     @field_validator("llm_fallback_providers")
     @classmethod

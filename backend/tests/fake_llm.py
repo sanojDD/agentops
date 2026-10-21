@@ -1,5 +1,6 @@
 """Local stand-ins for the model providers (all four speak the same protocol)."""
 
+import inspect
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -27,7 +28,11 @@ class FakeLLM:
                         "headers": {k.lower(): v for k, v in self.headers.items()},
                     }
                 )
-                status, payload = outer.handler(method, self.path, body)
+                headers = {k.lower(): v for k, v in self.headers.items()}
+                if len(inspect.signature(outer.handler).parameters) >= 4:
+                    status, payload = outer.handler(method, self.path, body, headers)
+                else:
+                    status, payload = outer.handler(method, self.path, body)
                 data = json.dumps(payload).encode()
                 self.send_response(status)
                 self.send_header("Content-Type", "application/json")
@@ -106,3 +111,33 @@ def reasoning_model(threshold=600, text="The agent makes at most two retrieval a
 
 def failing(status: int, message: str = "boom"):
     return lambda method, path, body: (status, {"error": {"message": message}})
+
+
+def gemini_native(*, key, model="gemini-2.5-flash", text="The agent makes at most two retrieval attempts.", threshold=600, models=None):
+    """Imitates Google's own generateContent API, including its habits: a wrong key is
+    HTTP 400 "API key not valid", and a thinking model whose budget is too small
+    returns a candidate with no text and finishReason MAX_TOKENS."""
+
+    def handler(method, path, body, headers):
+        if headers.get("x-goog-api-key") != key:
+            return 400, {"error": {"code": 400, "message": "API key not valid. Please pass a valid API key.", "status": "INVALID_ARGUMENT"}}
+        route = path.split("?")[0]
+        if method == "GET" and route.endswith("/models"):
+            return 200, {"models": [{"name": f"models/{m}"} for m in (models or [model])]}
+        if not route.endswith(f"/models/{model}:generateContent"):
+            return 404, {"error": {"code": 404, "message": "models/x is not found for API version v1beta, or is not supported for generateContent.", "status": "NOT_FOUND"}}
+        config = body["generationConfig"]
+        thinking_off = (config.get("thinkingConfig") or {}).get("thinkingBudget") == 0
+        if not thinking_off and config["maxOutputTokens"] < threshold:
+            return 200, {
+                "candidates": [{"content": {"role": "model"}, "finishReason": "MAX_TOKENS", "index": 0}],
+                "usageMetadata": {"promptTokenCount": 10, "totalTokenCount": 10 + config["maxOutputTokens"], "thoughtsTokenCount": config["maxOutputTokens"]},
+                "modelVersion": model,
+            }
+        return 200, {
+            "candidates": [{"content": {"parts": [{"text": text}], "role": "model"}, "finishReason": "STOP", "index": 0}],
+            "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 8, "totalTokenCount": 118, "thoughtsTokenCount": 0 if thinking_off else threshold - 100},
+            "modelVersion": model,
+        }
+
+    return handler

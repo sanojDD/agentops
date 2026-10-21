@@ -20,8 +20,8 @@ import httpx
 
 from app.core.config import PROVIDER_NAMES, Settings, get_settings
 from app.graph.nodes import ANSWER_PROMPT
-from app.providers.base import ProviderError
-from app.providers.openai_compat import call
+from app.providers.base import ProviderError, extract_message, redact
+from app.providers.dispatch import call
 from app.providers.registry import ProviderSpec, all_specs, chain_names, spec_for
 
 PING = "Reply with exactly one word: pong"
@@ -44,14 +44,16 @@ def _error_text(exc: ProviderError) -> str:
 
 async def list_models(spec: ProviderSpec, timeout: float) -> tuple[str, list[str] | None]:
     """Best effort: returns (status text, model ids or None)."""
-    url = f"{spec.base_url.rstrip('/')}/models"
+    native = spec.api_style == "gemini_native"
+    url = f"{spec.base_url.rstrip('/')}/models" + ("?pageSize=1000" if native else "")
+    headers = {"x-goog-api-key": spec.api_key} if native else {"Authorization": f"Bearer {spec.api_key}"}
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
-            resp = await client.get(url, headers={"Authorization": f"Bearer {spec.api_key}"})
+            resp = await client.get(url, headers=headers)
     except httpx.HTTPError:
         return "unreachable", None
     if resp.status_code != 200:
-        return f"HTTP {resp.status_code}", None
+        return f"HTTP {resp.status_code}: {redact(extract_message(resp.text), spec.api_key)}", None
     try:
         body = resp.json()
         items = body.get("data", body.get("models", [])) if isinstance(body, dict) else body
@@ -64,7 +66,7 @@ async def list_models(spec: ProviderSpec, timeout: float) -> tuple[str, list[str
 async def check_models(spec: ProviderSpec, timeout: float) -> bool:
     status, ids = await list_models(spec, timeout)
     if ids is None:
-        level = "FAIL" if status in ("HTTP 401", "HTTP 403") else "WARN"
+        level = "FAIL" if status.startswith(("HTTP 401", "HTTP 403")) else "WARN"
         _say(level, f"could not list models ({status}); the request test below is the real check")
         return level != "FAIL"
     if spec.model in ids:
@@ -141,7 +143,7 @@ async def starvation_test(spec: ProviderSpec, settings: Settings) -> bool:
 
 async def check_provider(spec: ProviderSpec, settings: Settings, starvation: bool) -> bool:
     effort = spec.reasoning_effort or "(not sent)"
-    print(f"\n{spec.name}: model={spec.model}  reasoning_effort={effort}")
+    print(f"\n{spec.name}: model={spec.model}  api={spec.api_style}  reasoning_effort={effort}")
     if not spec.configured:
         _say("SKIP", f"no API key set ({spec.name.upper()}_API_KEY)")
         return False

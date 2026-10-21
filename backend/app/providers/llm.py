@@ -13,7 +13,7 @@ from langsmith import traceable
 
 from app.core.config import PROVIDER_NAMES, get_settings
 from app.providers.base import FAILOVER_KINDS, ProviderError
-from app.providers.openai_compat import call
+from app.providers.dispatch import call
 from app.providers.registry import spec_for, usable_chain
 
 logger = logging.getLogger("agentops.llm")
