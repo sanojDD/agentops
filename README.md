@@ -2,7 +2,7 @@
 
 Observable agentic RAG / LLMOps platform. Upload documents, ask questions, get answers that cite their sources, and inspect every workflow step.
 
-**Status:** Phase 6 (demo mode). Anyone can try it from the link with one click, read-only, with usage limits. Frontend on a Render static site, backend on Render, database on Neon: all free tiers.
+**Status:** Phase 7 (evaluation harness), on top of the Phase 6 demo mode. Anyone can try it from the link with one click, read-only, with usage limits. Frontend on a Render static site, backend on Render, database on Neon: all free tiers.
 
 ## What it does
 1. Upload `.txt`, `.md` or `.pdf` documents; they are chunked, indexed and saved in PostgreSQL.
@@ -15,6 +15,7 @@ Observable agentic RAG / LLMOps platform. Upload documents, ask questions, get a
 backend/    FastAPI + LangGraph + SQLAlchemy/Alembic   (Python)
 frontend/   React + TypeScript + Vite, plain CSS       (Node)
 docs/       architecture, RAG flow, API, database, frontend, deployment, decisions
+evals/       evaluation dataset, saved reports, and a README
 samples/    a small document to try (acme_policy.txt)
 render.yaml Render Blueprint: API web service + frontend static site
 ```
@@ -45,6 +46,7 @@ Optional persistence: set `DATABASE_URL=sqlite:///./agentops_dev.db` in `.env` a
 ## Docs
 | Doc | What it explains |
 |---|---|
+| [docs/EVALUATION.md](docs/EVALUATION.md) | How quality is measured: dataset, metrics explained from scratch, baselines, how to run and report results |
 | [docs/PROVIDERS.md](docs/PROVIDERS.md) | Model providers (OpenRouter, Groq, Gemini, Mistral), failover, the empty-answer fix, the self-check |
 | [docs/DEMO_MODE.md](docs/DEMO_MODE.md) | Visitor access, limits, abuse protection, privacy, how to turn it on |
 | [docs/FRONTEND.md](docs/FRONTEND.md) | The UI: screens, design notes, security model, local run, deploy, troubleshooting |
@@ -62,5 +64,5 @@ Optional persistence: set `DATABASE_URL=sqlite:///./agentops_dev.db` in `.env` a
 - [x] Phase 4: PostgreSQL persistence (documents, runs, history)
 - [x] Phase 5: React UI, deployed as a free static site
 - [x] Phase 6: Demo mode (visitor access, rate limits, sample document, uptime monitor guide)
-- [ ] Phase 7: Evaluation (test questions, retrieval and answer metrics, baseline vs improved)
-- [ ] Later: real accounts, embeddings + hybrid retrieval, CI/CD
+- [x] Phase 7: Evaluation harness (44 questions over 20 documents; retrieval, answer and abstention metrics; baselines; retrieval experiments)
+- [ ] Next: embeddings and hybrid retrieval (measured against the retrieval baseline), model-based answer checking, real accounts, CI/CD

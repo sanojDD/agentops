@@ -1,0 +1,1516 @@
+{
+  "meta": {
+    "system": "extractive",
+    "provider": "none",
+    "model": "extractive",
+    "label": "",
+    "timestamp": "2026-10-23 01:37",
+    "dataset": {
+      "name": "agentops-eval-v1",
+      "sha256": "42743f13aa59ee04b9a172ba3b5636054531c4a50bf0d07ef36223e7135f6670",
+      "n_questions": 44
+    },
+    "config": {
+      "system": "extractive",
+      "chunk_size": 900,
+      "overlap": 150,
+      "top_k": 4,
+      "min_coverage": 0.34
+    },
+    "cached": 0,
+    "limit": null
+  },
+  "summary": {
+    "counts": {
+      "correct": 15,
+      "incorrect": 8,
+      "false_abstention": 1,
+      "correct_abstention": 9,
+      "unsupported_answer": 11
+    },
+    "n_questions": 44,
+    "n_errors": 0,
+    "error_kinds": {},
+    "answerable_accuracy": {
+      "k": 15,
+      "n": 24,
+      "value": 0.625,
+      "ci": [
+        0.4271,
+        0.7884
+      ]
+    },
+    "fact_recall_mean": 0.625,
+    "false_abstention_rate": {
+      "k": 1,
+      "n": 24,
+      "value": 0.041666666666666664,
+      "ci": [
+        0.0074,
+        0.2024
+      ]
+    },
+    "abstention_recall": {
+      "k": 9,
+      "n": 20,
+      "value": 0.45,
+      "ci": [
+        0.2582,
+        0.6579
+      ]
+    },
+    "unsupported_answer_rate": {
+      "k": 11,
+      "n": 20,
+      "value": 0.55,
+      "ci": [
+        0.3421,
+        0.7418
+      ]
+    },
+    "abstention_precision": {
+      "k": 9,
+      "n": 10,
+      "value": 0.9,
+      "ci": [
+        0.5958,
+        0.9821
+      ]
+    },
+    "decision_accuracy": {
+      "k": 24,
+      "n": 44,
+      "value": 0.5454545454545454,
+      "ci": [
+        0.4007,
+        0.6829
+      ]
+    },
+    "citation_gold_rate": {
+      "k": 19,
+      "n": 23,
+      "value": 0.8260869565217391,
+      "ci": [
+        0.6286,
+        0.9302
+      ]
+    },
+    "latency_p50_s": 0.00030286199999807195,
+    "latency_p95_s": 0.0007245762999975369,
+    "llm_calls_mean": 0.0,
+    "support_score_mean": null,
+    "by_type": {
+      "direct": {
+        "k": 13,
+        "n": 16,
+        "value": 0.8125,
+        "ci": [
+          0.5699,
+          0.9341
+        ]
+      },
+      "paraphrase": {
+        "k": 2,
+        "n": 8,
+        "value": 0.25,
+        "ci": [
+          0.0715,
+          0.5907
+        ]
+      },
+      "off_topic": {
+        "k": 8,
+        "n": 8,
+        "value": 1.0,
+        "ci": [
+          0.6756,
+          1.0
+        ]
+      },
+      "near_miss": {
+        "k": 1,
+        "n": 12,
+        "value": 0.08333333333333333,
+        "ci": [
+          0.0149,
+          0.3539
+        ]
+      }
+    },
+    "failures": [
+      {
+        "id": "d05",
+        "type": "direct",
+        "status": "incorrect",
+        "question": "What HTTP status does the API return when the rate limit is exceeded?"
+      },
+      {
+        "id": "d12",
+        "type": "direct",
+        "status": "incorrect",
+        "question": "On which day and time is scheduled maintenance performed?"
+      },
+      {
+        "id": "d14",
+        "type": "direct",
+        "status": "incorrect",
+        "question": "How many members can a Team workspace have?"
+      },
+      {
+        "id": "p01",
+        "type": "paraphrase",
+        "status": "incorrect",
+        "question": "What do I get if my 99.9% uptime guarantee is missed slightly?"
+      },
+      {
+        "id": "p02",
+        "type": "paraphrase",
+        "status": "false_abstention",
+        "question": "How soon do I need to ask for compensation after an outage?"
+      },
+      {
+        "id": "p03",
+        "type": "paraphrase",
+        "status": "incorrect",
+        "question": "If I stop paying, what happens to my projects?"
+      },
+      {
+        "id": "p04",
+        "type": "paraphrase",
+        "status": "incorrect",
+        "question": "Can a person who left the company still use the keys they made?"
+      },
+      {
+        "id": "p05",
+        "type": "paraphrase",
+        "status": "incorrect",
+        "question": "Which hosting locations are offered for customer data?"
+      },
+      {
+        "id": "p07",
+        "type": "paraphrase",
+        "status": "incorrect",
+        "question": "What do I do if my server answers slowly to Helio's event notifications?"
+      },
+      {
+        "id": "n01",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "How do I install the Ruby SDK?"
+      },
+      {
+        "id": "n02",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "What is the refund policy for hardware purchases?"
+      },
+      {
+        "id": "n03",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "How many days of log retention does the Starter plan have?"
+      },
+      {
+        "id": "n04",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "Which payment methods does Helio accept in India?"
+      },
+      {
+        "id": "n05",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "What is the maximum number of projects on the Enterprise plan?"
+      },
+      {
+        "id": "n07",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "What is the webhook timeout in the sandbox environment?"
+      },
+      {
+        "id": "n08",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "Does Helio support GraphQL?"
+      },
+      {
+        "id": "n09",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "Who founded Helio Cloud and in what year?"
+      },
+      {
+        "id": "n10",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "Which languages is the dashboard available in?"
+      },
+      {
+        "id": "n11",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "Is there a student discount?"
+      },
+      {
+        "id": "n12",
+        "type": "near_miss",
+        "status": "unsupported_answer",
+        "question": "How many API keys can a workspace have?"
+      }
+    ]
+  },
+  "questions": [
+    {
+      "id": "d01",
+      "type": "direct",
+      "answerable": true,
+      "question": "How much does the Pro plan cost per month?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d02",
+      "type": "direct",
+      "answerable": true,
+      "question": "How many requests per minute does the Team plan allow?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d03",
+      "type": "direct",
+      "answerable": true,
+      "question": "How many times does Helio retry a failed payment?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d04",
+      "type": "direct",
+      "answerable": true,
+      "question": "How long do refresh tokens last?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d05",
+      "type": "direct",
+      "answerable": true,
+      "question": "What HTTP status does the API return when the rate limit is exceeded?",
+      "status": "incorrect",
+      "fact_matched": 0,
+      "fact_total": 1,
+      "fact_recall": 0.0,
+      "has_citation": true,
+      "cited_gold": false
+    },
+    {
+      "id": "d06",
+      "type": "direct",
+      "answerable": true,
+      "question": "Which regions can I choose for my data?",
+      "status": "correct",
+      "fact_matched": 2,
+      "fact_total": 2,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d07",
+      "type": "direct",
+      "answerable": true,
+      "question": "How long are request logs kept on the Team plan?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d08",
+      "type": "direct",
+      "answerable": true,
+      "question": "What is the maximum webhook payload size?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d09",
+      "type": "direct",
+      "answerable": true,
+      "question": "How many times are failed webhook deliveries retried?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d10",
+      "type": "direct",
+      "answerable": true,
+      "question": "What prefix do production API keys start with?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d11",
+      "type": "direct",
+      "answerable": true,
+      "question": "What is the uptime SLA for Enterprise workspaces?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d12",
+      "type": "direct",
+      "answerable": true,
+      "question": "On which day and time is scheduled maintenance performed?",
+      "status": "incorrect",
+      "fact_matched": 0,
+      "fact_total": 2,
+      "fact_recall": 0.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d13",
+      "type": "direct",
+      "answerable": true,
+      "question": "How long is the free trial for Pro and Team?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d14",
+      "type": "direct",
+      "answerable": true,
+      "question": "How many members can a Team workspace have?",
+      "status": "incorrect",
+      "fact_matched": 0,
+      "fact_total": 1,
+      "fact_recall": 0.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d15",
+      "type": "direct",
+      "answerable": true,
+      "question": "Who can pay by ACH bank transfer?",
+      "status": "correct",
+      "fact_matched": 2,
+      "fact_total": 2,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "d16",
+      "type": "direct",
+      "answerable": true,
+      "question": "How long after a P1 incident does Helio publish a postmortem?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "p01",
+      "type": "paraphrase",
+      "answerable": true,
+      "question": "What do I get if my 99.9% uptime guarantee is missed slightly?",
+      "status": "incorrect",
+      "fact_matched": 0,
+      "fact_total": 1,
+      "fact_recall": 0.0,
+      "has_citation": true,
+      "cited_gold": false
+    },
+    {
+      "id": "p02",
+      "type": "paraphrase",
+      "answerable": true,
+      "question": "How soon do I need to ask for compensation after an outage?",
+      "status": "false_abstention"
+    },
+    {
+      "id": "p03",
+      "type": "paraphrase",
+      "answerable": true,
+      "question": "If I stop paying, what happens to my projects?",
+      "status": "incorrect",
+      "fact_matched": 0,
+      "fact_total": 1,
+      "fact_recall": 0.0,
+      "has_citation": true,
+      "cited_gold": false
+    },
+    {
+      "id": "p04",
+      "type": "paraphrase",
+      "answerable": true,
+      "question": "Can a person who left the company still use the keys they made?",
+      "status": "incorrect",
+      "fact_matched": 0,
+      "fact_total": 1,
+      "fact_recall": 0.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "p05",
+      "type": "paraphrase",
+      "answerable": true,
+      "question": "Which hosting locations are offered for customer data?",
+      "status": "incorrect",
+      "fact_matched": 0,
+      "fact_total": 2,
+      "fact_recall": 0.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "p06",
+      "type": "paraphrase",
+      "answerable": true,
+      "question": "How quickly does a deleted key stop working?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "p07",
+      "type": "paraphrase",
+      "answerable": true,
+      "question": "What do I do if my server answers slowly to Helio's event notifications?",
+      "status": "incorrect",
+      "fact_matched": 0,
+      "fact_total": 1,
+      "fact_recall": 0.0,
+      "has_citation": true,
+      "cited_gold": false
+    },
+    {
+      "id": "p08",
+      "type": "paraphrase",
+      "answerable": true,
+      "question": "How much advance notice do customers get before planned downtime?",
+      "status": "correct",
+      "fact_matched": 1,
+      "fact_total": 1,
+      "fact_recall": 1.0,
+      "has_citation": true,
+      "cited_gold": true
+    },
+    {
+      "id": "o01",
+      "type": "off_topic",
+      "answerable": false,
+      "question": "What is the capital of Australia?",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "o02",
+      "type": "off_topic",
+      "answerable": false,
+      "question": "How do I bake sourdough bread?",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "o03",
+      "type": "off_topic",
+      "answerable": false,
+      "question": "Who won the football World Cup in 2018?",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "o04",
+      "type": "off_topic",
+      "answerable": false,
+      "question": "What is the airspeed velocity of an unladen swallow?",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "o05",
+      "type": "off_topic",
+      "answerable": false,
+      "question": "Explain how photosynthesis works.",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "o06",
+      "type": "off_topic",
+      "answerable": false,
+      "question": "What is the weather like in Kathmandu today?",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "o07",
+      "type": "off_topic",
+      "answerable": false,
+      "question": "Write a Python function that reverses a string.",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "o08",
+      "type": "off_topic",
+      "answerable": false,
+      "question": "Who is the CEO of Tesla?",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "n01",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "How do I install the Ruby SDK?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n02",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "What is the refund policy for hardware purchases?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n03",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "How many days of log retention does the Starter plan have?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n04",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "Which payment methods does Helio accept in India?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n05",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "What is the maximum number of projects on the Enterprise plan?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n06",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "How much does a dedicated IP address cost?",
+      "status": "correct_abstention"
+    },
+    {
+      "id": "n07",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "What is the webhook timeout in the sandbox environment?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n08",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "Does Helio support GraphQL?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n09",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "Who founded Helio Cloud and in what year?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n10",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "Which languages is the dashboard available in?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n11",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "Is there a student discount?",
+      "status": "unsupported_answer"
+    },
+    {
+      "id": "n12",
+      "type": "near_miss",
+      "answerable": false,
+      "question": "How many API keys can a workspace have?",
+      "status": "unsupported_answer"
+    }
+  ],
+  "results": [
+    {
+      "answer": "The Pro plan costs 29 dollars per month per workspace and includes 20 projects. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "032f0981fde3:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0004274029999962181,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "The Free plan allows 60 requests per minute, Pro allows 600, and Team allows 3000 requests per minute. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "afbdb4bc224a:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0003610699999967437,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "If a payment fails, Helio retries the charge 3 times over 7 days. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "77b9ae5b416f:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00039792499999435904,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Refresh tokens expire after 30 days of inactivity. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "b5db9e4b34e1:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00017807000000402695,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "The API uses standard HTTP status codes. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "5f1e395d0a21:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00030190500000060183,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Customers choose a data region when they create a workspace: US East in Virginia or EU West in Frankfurt. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7f7867fac217:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00030591000000157464,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Request logs are kept for 3 days on Free, 7 days on Pro, 30 days on Team and 90 days on Enterprise. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7f7867fac217:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0003466459999970084,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "The maximum webhook payload is 256 KB. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "23177e2958d7:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00018097399999561503,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Failed deliveries are retried 5 times with exponential backoff, over a period of up to 24 hours. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "23177e2958d7:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0001977589999953011,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Every API key starts with the prefix hk_live_ for production or hk_test_ for the sandbox. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "b5db9e4b34e1:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00036926199999953724,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Team workspaces are covered by a 99.9 percent monthly uptime SLA and Enterprise workspaces by 99.99 percent. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "a111f544807f:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00030381899999554207,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Scheduled maintenance [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7af6f6745f1a:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00034265499999719395,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "New Pro and Team workspaces start with a 14-day free trial that does not require a credit card. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "032f0981fde3:1"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0003157980000025873,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Team and Enterprise workspaces have an audit log of sign-ins, key changes and member changes. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "aa9aa799c9bb:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00035720000000338814,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Payment by ACH bank transfer is available on Team and Enterprise only. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "77b9ae5b416f:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00010971300000051087,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "After every P1 incident Helio publishes a postmortem within 5 business days. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7af6f6745f1a:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0002635049999994976,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "workspaces get audit logs, ACH payments and a 99.9 percent uptime SLA. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "032f0981fde3:1"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00026090699999770095,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0002052310000024704,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Project: a container for the resources and settings of one application. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "215af793968b:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.000741478999998435,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Developers can create projects and use keys. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "aa9aa799c9bb:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0005133149999991815,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "When a customer deletes a project, its data is removed from production systems immediately and purged from backups within 35 days. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7f7867fac217:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0003080119999978592,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "A key can be revoked at any time from the workspace settings, and revoked keys stop working within 60 seconds. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "b5db9e4b34e1:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00032678599999513835,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Webhook: an HTTP request that Helio sends to your server when an event happens. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "215af793968b:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0001802439999991634,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Planned maintenance is announced at least 7 days in advance. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7af6f6745f1a:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00038332899999460324,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 2.4201000002221917e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 2.731099999664366e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 2.9154000003472902e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 2.719100000092567e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 2.218200000214665e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 2.5022000002650202e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 3.531400000156282e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 1.8171000000677395e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Create a workspace, create an API key from the workspace settings, and install the SDK. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7346b76bd79a:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00010106199999881937,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Billing and refunds [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "77b9ae5b416f:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00035287899999758565,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Log retention [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7f7867fac217:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0008435579999996889,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Refund requests are sent to the billing team and are processed within 10 business days to the original payment method. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "77b9ae5b416f:1"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0003018120000035651,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Helio Cloud is available in four plans: Free, Pro, Team and Enterprise. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "032f0981fde3:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00035177500000571627,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Not found in the documents.",
+      "abstained": true,
+      "error": null,
+      "chunk_ids": [],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 4.016000000461872e-05,
+      "steps": [
+        "retrieve",
+        "retrieve",
+        "fallback"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Every workspace has a sandbox environment at api.sandbox.helio.example. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7346b76bd79a:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00033310999999969226,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Use the support channel that belongs to your plan. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "6cc9d4cd4f69:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0007144969999970385,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Helio maintains a SOC 2 Type II report that is renewed every year. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "7cd8f4c18f39:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00021562899999594265,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "The dashboard now shows monthly usage charts for the last 30 days. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "2df083125084:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 2,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.0007263549999976249,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "Discounts and trials [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "032f0981fde3:1"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 8.344399999771213e-05,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    },
+    {
+      "answer": "API keys belong to the workspace, not to the person who created them. [1]",
+      "abstained": false,
+      "error": null,
+      "chunk_ids": [
+        "aa9aa799c9bb:0"
+      ],
+      "support_score": null,
+      "retrieval_attempts": 1,
+      "generate_attempts": 0,
+      "llm_calls": 0,
+      "latency_s": 0.00035321800000076564,
+      "steps": [
+        "retrieve",
+        "extract"
+      ],
+      "model": "extractive",
+      "provider": "none"
+    }
+  ]
+}

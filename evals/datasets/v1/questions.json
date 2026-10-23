@@ -1,0 +1,522 @@
+{
+  "name": "agentops-eval-v1",
+  "description": "Twenty short documents from a fictional developer platform (Helio Cloud), including look-alike distractors, and 44 questions: direct and paraphrased questions that the documents answer, and off-topic and near-miss questions that they do not.",
+  "questions": [
+    {
+      "id": "d01",
+      "question": "How much does the Pro plan cost per month?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "costs 29 dollars per month per workspace"
+      ],
+      "facts": [
+        [
+          "29 dollars",
+          "$29"
+        ]
+      ]
+    },
+    {
+      "id": "d02",
+      "question": "How many requests per minute does the Team plan allow?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "Team allows 3000 requests per minute"
+      ],
+      "facts": [
+        [
+          "3000",
+          "3,000"
+        ]
+      ]
+    },
+    {
+      "id": "d03",
+      "question": "How many times does Helio retry a failed payment?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "retries the charge 3 times over 7 days"
+      ],
+      "facts": [
+        [
+          "3 times",
+          "three times",
+          "3 retries",
+          "three retries",
+          "3 attempts",
+          "three attempts"
+        ]
+      ]
+    },
+    {
+      "id": "d04",
+      "question": "How long do refresh tokens last?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "Refresh tokens expire after 30 days of inactivity"
+      ],
+      "facts": [
+        [
+          "30 days"
+        ]
+      ]
+    },
+    {
+      "id": "d05",
+      "question": "What HTTP status does the API return when the rate limit is exceeded?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "receive HTTP status 429"
+      ],
+      "facts": [
+        [
+          "429"
+        ]
+      ]
+    },
+    {
+      "id": "d06",
+      "question": "Which regions can I choose for my data?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "US East in Virginia or EU West in Frankfurt"
+      ],
+      "facts": [
+        [
+          "US East",
+          "Virginia"
+        ],
+        [
+          "EU West",
+          "Frankfurt"
+        ]
+      ]
+    },
+    {
+      "id": "d07",
+      "question": "How long are request logs kept on the Team plan?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "30 days on Team"
+      ],
+      "facts": [
+        [
+          "30 days"
+        ]
+      ]
+    },
+    {
+      "id": "d08",
+      "question": "What is the maximum webhook payload size?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "The maximum webhook payload is 256 KB"
+      ],
+      "facts": [
+        [
+          "256 KB",
+          "256KB"
+        ]
+      ]
+    },
+    {
+      "id": "d09",
+      "question": "How many times are failed webhook deliveries retried?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "retried 5 times with exponential backoff"
+      ],
+      "facts": [
+        [
+          "5 times",
+          "five times",
+          "5 attempts",
+          "five attempts",
+          "5 retries",
+          "five retries"
+        ]
+      ]
+    },
+    {
+      "id": "d10",
+      "question": "What prefix do production API keys start with?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "starts with the prefix hk_live_ for production"
+      ],
+      "facts": [
+        [
+          "hk_live_"
+        ]
+      ]
+    },
+    {
+      "id": "d11",
+      "question": "What is the uptime SLA for Enterprise workspaces?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "Enterprise workspaces by 99.99 percent"
+      ],
+      "facts": [
+        [
+          "99.99"
+        ]
+      ]
+    },
+    {
+      "id": "d12",
+      "question": "On which day and time is scheduled maintenance performed?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "Maintenance windows are on Sundays between 02:00 and 04:00 UTC"
+      ],
+      "facts": [
+        [
+          "sunday"
+        ],
+        [
+          "02:00",
+          "2:00",
+          "2 am",
+          "2am"
+        ]
+      ]
+    },
+    {
+      "id": "d13",
+      "question": "How long is the free trial for Pro and Team?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "14-day free trial"
+      ],
+      "facts": [
+        [
+          "14-day",
+          "14 day",
+          "14 days",
+          "fourteen"
+        ]
+      ]
+    },
+    {
+      "id": "d14",
+      "question": "How many members can a Team workspace have?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "up to 10 members",
+        "10 on Team"
+      ],
+      "facts": [
+        [
+          "10 members",
+          "ten members",
+          "up to 10",
+          "10 seats",
+          "10 on team",
+          "10 people",
+          "10 users",
+          "10 workspace members"
+        ]
+      ]
+    },
+    {
+      "id": "d15",
+      "question": "Who can pay by ACH bank transfer?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "available on Team and Enterprise only"
+      ],
+      "facts": [
+        [
+          "team"
+        ],
+        [
+          "enterprise"
+        ]
+      ]
+    },
+    {
+      "id": "d16",
+      "question": "How long after a P1 incident does Helio publish a postmortem?",
+      "type": "direct",
+      "answerable": true,
+      "gold_evidence": [
+        "publishes a postmortem within 5 business days"
+      ],
+      "facts": [
+        [
+          "5 business days",
+          "five business days"
+        ]
+      ]
+    },
+    {
+      "id": "p01",
+      "question": "What do I get if my 99.9% uptime guarantee is missed slightly?",
+      "type": "paraphrase",
+      "answerable": true,
+      "gold_evidence": [
+        "credit of 10 percent of that month's fee"
+      ],
+      "facts": [
+        [
+          "10 percent",
+          "10%"
+        ]
+      ]
+    },
+    {
+      "id": "p02",
+      "question": "How soon do I need to ask for compensation after an outage?",
+      "type": "paraphrase",
+      "answerable": true,
+      "gold_evidence": [
+        "Credits must be requested within 30 days"
+      ],
+      "facts": [
+        [
+          "30 days"
+        ]
+      ]
+    },
+    {
+      "id": "p03",
+      "question": "If I stop paying, what happens to my projects?",
+      "type": "paraphrase",
+      "answerable": true,
+      "gold_evidence": [
+        "downgraded to the Free plan"
+      ],
+      "facts": [
+        [
+          "free plan"
+        ]
+      ]
+    },
+    {
+      "id": "p04",
+      "question": "Can a person who left the company still use the keys they made?",
+      "type": "paraphrase",
+      "answerable": true,
+      "gold_evidence": [
+        "Removing a member does not revoke the keys they created"
+      ],
+      "facts": [
+        [
+          "not revoke",
+          "not revoked",
+          "still",
+          "remain",
+          "belong to the workspace"
+        ]
+      ]
+    },
+    {
+      "id": "p05",
+      "question": "Which hosting locations are offered for customer data?",
+      "type": "paraphrase",
+      "answerable": true,
+      "gold_evidence": [
+        "US East in Virginia or EU West in Frankfurt"
+      ],
+      "facts": [
+        [
+          "virginia",
+          "us east"
+        ],
+        [
+          "frankfurt",
+          "eu west"
+        ]
+      ]
+    },
+    {
+      "id": "p06",
+      "question": "How quickly does a deleted key stop working?",
+      "type": "paraphrase",
+      "answerable": true,
+      "gold_evidence": [
+        "revoked keys stop working within 60 seconds"
+      ],
+      "facts": [
+        [
+          "60 seconds",
+          "a minute",
+          "one minute",
+          "1 minute"
+        ]
+      ]
+    },
+    {
+      "id": "p07",
+      "question": "What do I do if my server answers slowly to Helio's event notifications?",
+      "type": "paraphrase",
+      "answerable": true,
+      "gold_evidence": [
+        "answer with a 2xx status within 10 seconds"
+      ],
+      "facts": [
+        [
+          "10 seconds"
+        ]
+      ]
+    },
+    {
+      "id": "p08",
+      "question": "How much advance notice do customers get before planned downtime?",
+      "type": "paraphrase",
+      "answerable": true,
+      "gold_evidence": [
+        "announced at least 7 days in advance"
+      ],
+      "facts": [
+        [
+          "7 days",
+          "seven days",
+          "a week",
+          "one week"
+        ]
+      ]
+    },
+    {
+      "id": "o01",
+      "question": "What is the capital of Australia?",
+      "type": "off_topic",
+      "answerable": false
+    },
+    {
+      "id": "o02",
+      "question": "How do I bake sourdough bread?",
+      "type": "off_topic",
+      "answerable": false
+    },
+    {
+      "id": "o03",
+      "question": "Who won the football World Cup in 2018?",
+      "type": "off_topic",
+      "answerable": false
+    },
+    {
+      "id": "o04",
+      "question": "What is the airspeed velocity of an unladen swallow?",
+      "type": "off_topic",
+      "answerable": false
+    },
+    {
+      "id": "o05",
+      "question": "Explain how photosynthesis works.",
+      "type": "off_topic",
+      "answerable": false
+    },
+    {
+      "id": "o06",
+      "question": "What is the weather like in Kathmandu today?",
+      "type": "off_topic",
+      "answerable": false
+    },
+    {
+      "id": "o07",
+      "question": "Write a Python function that reverses a string.",
+      "type": "off_topic",
+      "answerable": false,
+      "note": "shares the word 'Python' with the SDK instructions"
+    },
+    {
+      "id": "o08",
+      "question": "Who is the CEO of Tesla?",
+      "type": "off_topic",
+      "answerable": false
+    },
+    {
+      "id": "n01",
+      "question": "How do I install the Ruby SDK?",
+      "type": "near_miss",
+      "answerable": false,
+      "note": "only the JavaScript and Python SDKs are described"
+    },
+    {
+      "id": "n02",
+      "question": "What is the refund policy for hardware purchases?",
+      "type": "near_miss",
+      "answerable": false,
+      "note": "refunds are described for plans only"
+    },
+    {
+      "id": "n03",
+      "question": "How many days of log retention does the Starter plan have?",
+      "type": "near_miss",
+      "answerable": false,
+      "note": "there is no Starter plan (false premise)"
+    },
+    {
+      "id": "n04",
+      "question": "Which payment methods does Helio accept in India?",
+      "type": "near_miss",
+      "answerable": false
+    },
+    {
+      "id": "n05",
+      "question": "What is the maximum number of projects on the Enterprise plan?",
+      "type": "near_miss",
+      "answerable": false
+    },
+    {
+      "id": "n06",
+      "question": "How much does a dedicated IP address cost?",
+      "type": "near_miss",
+      "answerable": false
+    },
+    {
+      "id": "n07",
+      "question": "What is the webhook timeout in the sandbox environment?",
+      "type": "near_miss",
+      "answerable": false
+    },
+    {
+      "id": "n08",
+      "question": "Does Helio support GraphQL?",
+      "type": "near_miss",
+      "answerable": false
+    },
+    {
+      "id": "n09",
+      "question": "Who founded Helio Cloud and in what year?",
+      "type": "near_miss",
+      "answerable": false
+    },
+    {
+      "id": "n10",
+      "question": "Which languages is the dashboard available in?",
+      "type": "near_miss",
+      "answerable": false
+    },
+    {
+      "id": "n11",
+      "question": "Is there a student discount?",
+      "type": "near_miss",
+      "answerable": false,
+      "note": "only a non-profit discount is described"
+    },
+    {
+      "id": "n12",
+      "question": "How many API keys can a workspace have?",
+      "type": "near_miss",
+      "answerable": false
+    }
+  ]
+}

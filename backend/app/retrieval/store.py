@@ -92,6 +92,10 @@ class DocumentStore:
         with self._lock:
             return sum(1 for c in self._chunks.values() if self._in_scope(c.doc_id, scope))
 
+    def get_chunk(self, chunk_id: str) -> Chunk | None:
+        with self._lock:
+            return self._chunks.get(chunk_id)
+
     def list_documents(self, scope: str | None = None) -> list[DocumentInfo]:
         self.ensure_loaded()
         with self._lock:

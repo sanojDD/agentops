@@ -118,6 +118,9 @@ openrouter: model=nvidia/nemotron-3.5-lightning:free  reasoning_effort=(not sent
 
 The same checks are available on a running server (owner token): `POST /api/v1/llm/check?provider=groq` and `GET /api/v1/llm/providers`.
 
+## Comparing providers with numbers
+`python -m app.evals run --system agentops --provider groq` (then `--provider openrouter`, and so on) runs the same 44 questions through each provider and saves comparable reports; `python -m app.evals compare ...` puts them side by side with accuracy, abstention, latency and model calls. See [EVALUATION.md](EVALUATION.md).
+
 ## What is verified, and how
 
 The automated tests use local servers that imitate the four providers, including a reasoning model that returns an empty answer when its budget is too small. They check the exact request each provider receives (path, `Authorization` header, model, token budget, reasoning parameter), the starvation bug and every fix, every failover rule above, key redaction, the new endpoints and the self-check tool, plus the whole graph answering through a starving model. They cannot confirm that your real keys, model names and free-tier limits work today: that is what the self-check is for.

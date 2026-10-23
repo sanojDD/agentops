@@ -82,6 +82,9 @@ PostgreSQL (Neon) is the source of truth for documents, chunks and run history. 
 ## Frontend
 A React single-page app served as static files. It holds no secrets: the user enters the API address and access token at runtime, and the browser calls the API directly. See [FRONTEND.md](FRONTEND.md).
 
+## Evaluation
+`backend/app/evals/` plus `evals/` measure retrieval, answer quality and abstention on a fixed dataset, run the real workflow and a no-model baseline side by side, and write reports. It runs the same retrieval and graph code as the API but with the database and tracing switched off. See [EVALUATION.md](EVALUATION.md).
+
 ## What is intentionally not built yet
 - Embeddings and hybrid search: later, to measure baseline vs improved retrieval.
 - Real auth, per-user documents, rate limiting: before any public frontend.

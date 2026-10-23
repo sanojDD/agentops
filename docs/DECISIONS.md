@@ -53,4 +53,14 @@
 | 49 | The provider's own error message is logged (key redacted, 200 characters) and shown by the self-check, but not returned by the API | The owner can see why a request was rejected; visitors and clients never see provider internals | n/a |
 | 50 | Well-known provider messages are recognised (invalid key reported as 400, unsupported location, unknown model) and given accurate public messages | "Provider rejected request" alone is not actionable | New provider messages appear |
 | 51 | Gemini thinking is controlled with `none` / `dynamic` / a token number; other values are ignored with a log line | The native API takes a numeric budget; a wrong guess at a mapping would be worse than not sending one | Google documents a stable effort scale |
+| 52 | A small hand-built evaluation harness instead of Ragas or another framework | You are learning the concepts; every metric is a few readable lines, and there are no extra dependencies or hidden model calls | After the concepts are understood and a larger dataset exists |
+| 53 | Evaluate retrieval separately from answers, with no model for retrieval | Free, instant, deterministic, and it shows whether failures come from search or from the model | n/a |
+| 54 | Gold evidence is a text snippet, not a chunk id | Results stay comparable when chunking settings change | n/a |
+| 55 | Facts are checked by keyword, each with accepted wordings | Transparent and free; a known proxy, documented as such | A validated model-based judge |
+| 56 | Unanswerable questions are first-class (off-topic and near-miss), with abstention recall, precision and false abstention reported together | A RAG system's worst failure is a confident answer with no support | n/a |
+| 57 | Built-in baselines: random retrieval and a no-model extractive system | A metric needs something to beat | Stronger baselines |
+| 58 | 95% Wilson intervals and counts in every report | 44 questions is small; the reports must not imply false precision | A larger dataset |
+| 59 | Answers are cached by dataset, question, model, prompts and every relevant setting; errors are never cached | Re-runs do not spend free-tier quota, and changed settings never reuse stale answers | n/a |
+| 60 | Evaluation runs with the database and tracing off by default | A test must never write into your real database or flood your traces | n/a |
+| 61 | 10 look-alike distractor documents in the corpus | With 10 documents random retrieval already scored 30%; competition makes the numbers meaningful | Larger or real corpora |
 
